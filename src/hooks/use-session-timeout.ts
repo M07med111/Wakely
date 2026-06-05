@@ -9,18 +9,27 @@ export function useSessionTimeout() {
     let timer: ReturnType<typeof setTimeout>;
     const reset = () => {
       clearTimeout(timer);
-      timer = setTimeout(async () => {
-        await supabase.auth.signOut();
-        toast.info("تم تسجيل الخروج تلقائيًا بسبب عدم النشاط");
-        window.location.href = "/login";
-      }, TIMEOUT_MIN * 60 * 1000);
+      timer = setTimeout(
+        async () => {
+          await supabase.auth.signOut();
+          toast.info("تم تسجيل الخروج تلقائيًا بسبب عدم النشاط");
+          window.location.href = "/login";
+        },
+        TIMEOUT_MIN * 60 * 1000,
+      );
     };
-    const events: (keyof WindowEventMap)[] = ["mousemove", "keydown", "click", "scroll", "touchstart"];
-    events.forEach(e => window.addEventListener(e, reset, { passive: true }));
+    const events: (keyof WindowEventMap)[] = [
+      "mousemove",
+      "keydown",
+      "click",
+      "scroll",
+      "touchstart",
+    ];
+    events.forEach((e) => window.addEventListener(e, reset, { passive: true }));
     reset();
     return () => {
       clearTimeout(timer);
-      events.forEach(e => window.removeEventListener(e, reset));
+      events.forEach((e) => window.removeEventListener(e, reset));
     };
   }, []);
 }

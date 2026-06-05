@@ -16,7 +16,9 @@ export async function streamAIChat({
   onDone: () => void;
   signal?: AbortSignal;
 }) {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   if (!session?.access_token) {
     throw new Error("يجب تسجيل الدخول لاستخدام المساعد الذكي");
   }
@@ -36,7 +38,9 @@ export async function streamAIChat({
     try {
       const j = await resp.json();
       if (j?.error) msg = j.error;
-    } catch {}
+    } catch {
+      // Keep the generic message when the error response is not JSON.
+    }
     throw new Error(msg);
   }
 

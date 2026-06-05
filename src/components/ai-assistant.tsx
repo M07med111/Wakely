@@ -206,16 +206,18 @@ export function AIAssistant() {
               {/* Templates */}
               <div className="p-3 border-b border-border overflow-x-auto">
                 <div className="flex gap-2 min-w-max">
-                    {(templates ?? []).filter((t: any) => t?.id).map((t: any) => (
-                    <button
-                      key={t?.id}
-                      onClick={() => setInput(t.prompt)}
-                      className="text-xs px-3 py-1.5 rounded-full border border-border hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors flex items-center gap-1.5 shrink-0"
-                    >
-                      <Wand2 className="w-3 h-3" />
-                      {t.title}
-                    </button>
-                  ))}
+                  {(templates ?? [])
+                    .filter((t: any) => t?.id)
+                    .map((t: any) => (
+                      <button
+                        key={t?.id}
+                        onClick={() => setInput(t.prompt)}
+                        className="text-xs px-3 py-1.5 rounded-full border border-border hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors flex items-center gap-1.5 shrink-0"
+                      >
+                        <Wand2 className="w-3 h-3" />
+                        {t.title}
+                      </button>
+                    ))}
                 </div>
               </div>
 
@@ -244,9 +246,13 @@ export function AIAssistant() {
                       }`}
                     >
                       {m.content ? (
-                        m.role === "assistant"
-                          ? <div className="prose prose-sm prose-invert max-w-none [&_*]:!my-1.5 [&_h1]:!text-base [&_h2]:!text-sm [&_h3]:!text-sm"><ReactMarkdown>{m.content}</ReactMarkdown></div>
-                          : m.content
+                        m.role === "assistant" ? (
+                          <div className="prose prose-sm prose-invert max-w-none [&_*]:!my-1.5 [&_h1]:!text-base [&_h2]:!text-sm [&_h3]:!text-sm">
+                            <ReactMarkdown>{m.content}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          m.content
+                        )
                       ) : (
                         <Loader2 className="w-4 h-4 animate-spin opacity-60" />
                       )}
@@ -276,7 +282,11 @@ export function AIAssistant() {
                     disabled={streaming || !input.trim()}
                     className="btn-gold rounded-md px-4 py-2.5 disabled:opacity-50"
                   >
-                    {streaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    {streaming ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>

@@ -22,16 +22,19 @@ export function NotificationBell() {
     queryKey: ["notifications"],
     queryFn: async (): Promise<Item[]> => {
       const now = new Date();
-      const in7 = new Date(); in7.setDate(in7.getDate() + 7);
+      const in7 = new Date();
+      in7.setDate(in7.getDate() + 7);
 
       const [sess, pay] = await Promise.all([
-        supabase.from("sessions")
+        supabase
+          .from("sessions")
           .select("id, session_date, cases(id, case_number, clients(full_name))")
           .gte("session_date", now.toISOString())
           .lte("session_date", in7.toISOString())
           .order("session_date", { ascending: true })
           .limit(8),
-        supabase.from("payments")
+        supabase
+          .from("payments")
           .select("id, amount, due_date, clients(full_name)")
           .eq("status", "pending")
           .order("due_date", { ascending: true })
@@ -85,18 +88,27 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)}>
+        <div
+          className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm"
+          onClick={() => setOpen(false)}
+        >
           <div
             className="absolute top-0 left-0 h-full w-full max-w-sm bg-sidebar border-l border-border p-4 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold flex items-center gap-2"><Bell className="w-4 h-4 text-[var(--gold)]" /> الإشعارات</h3>
-              <button onClick={() => setOpen(false)}><X className="w-5 h-5" /></button>
+              <h3 className="font-bold flex items-center gap-2">
+                <Bell className="w-4 h-4 text-[var(--gold)]" /> الإشعارات
+              </h3>
+              <button onClick={() => setOpen(false)}>
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             {items.length === 0 ? (
-              <div className="text-sm text-muted-foreground text-center py-12">لا توجد إشعارات حالياً.</div>
+              <div className="text-sm text-muted-foreground text-center py-12">
+                لا توجد إشعارات حالياً.
+              </div>
             ) : (
               <div className="space-y-2">
                 {items.map((n) => (
@@ -106,11 +118,15 @@ export function NotificationBell() {
                     onClick={() => setOpen(false)}
                     className="flex items-start gap-3 p-3 rounded-xl bg-card border border-border hover:border-[var(--gold)]"
                   >
-                    <span className={`w-8 h-8 rounded-lg grid place-items-center shrink-0 ${
-                      n.tone === "rose" ? "bg-rose-500/15 text-rose-300" :
-                      n.tone === "amber" ? "bg-amber-500/15 text-amber-300" :
-                      "bg-[var(--gold)]/15 text-[var(--gold)]"
-                    }`}>
+                    <span
+                      className={`w-8 h-8 rounded-lg grid place-items-center shrink-0 ${
+                        n.tone === "rose"
+                          ? "bg-rose-500/15 text-rose-300"
+                          : n.tone === "amber"
+                            ? "bg-amber-500/15 text-amber-300"
+                            : "bg-[var(--gold)]/15 text-[var(--gold)]"
+                      }`}
+                    >
                       <n.icon className="w-4 h-4" />
                     </span>
                     <div className="min-w-0 flex-1">

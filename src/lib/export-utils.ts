@@ -1,7 +1,6 @@
 // Export helpers — Excel via SheetJS, PDF via native print dialog (Arabic-safe)
-import * as XLSX from "xlsx";
-
-export function exportToExcel(filename: string, sheets: { name: string; rows: any[] }[]) {
+export async function exportToExcel(filename: string, sheets: { name: string; rows: any[] }[]) {
+  const XLSX = await import("xlsx");
   const wb = XLSX.utils.book_new();
   for (const s of sheets) {
     const ws = XLSX.utils.json_to_sheet(s.rows);

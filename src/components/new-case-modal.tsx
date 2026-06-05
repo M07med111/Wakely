@@ -5,24 +5,7 @@ import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
-export const CASE_CATEGORIES = [
-  "جنائي",
-  "أسرة",
-  "مدني",
-  "عسكرية",
-  "محاكم اقتصادية",
-  "مجلس دولة",
-  "إدارية عليا",
-];
-
-export function formatCaseId(c: { case_number?: string | null; case_year?: number | null; case_category?: string | null; court_location?: string | null; court_name?: string | null; }) {
-  const num = c.case_number || "—";
-  const year = c.case_year || "—";
-  const cat = c.case_category || "—";
-  const loc = c.court_location || c.court_name || "—";
-  return `${num} / ${year} / ${cat} / ${loc}`;
-}
+import { CASE_CATEGORIES, formatCaseId } from "@/lib/case-format";
 
 export function NewCaseModal({
   presetClientId,
@@ -37,7 +20,10 @@ export function NewCaseModal({
   const { data: clients = [] } = useQuery({
     queryKey: ["clients-list"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("clients").select("id, full_name").order("full_name");
+      const { data, error } = await supabase
+        .from("clients")
+        .select("id, full_name")
+        .order("full_name");
       if (error) throw error;
       return data ?? [];
     },
@@ -70,7 +56,11 @@ export function NewCaseModal({
         case_year: data.case_year ? Number(data.case_year) : null,
         next_session_date: data.next_session_date || null,
       };
-      const { data: created, error } = await supabase.from("cases").insert(payload).select("id, client_id, next_session_date").maybeSingle();
+      const { data: created, error } = await supabase
+        .from("cases")
+        .insert(payload)
+        .select("id, client_id, next_session_date")
+        .maybeSingle();
       if (error) throw error;
       if (!created?.id) throw new Error("تعذّر استرجاع بيانات القضية بعد الحفظ");
 
@@ -108,34 +98,78 @@ export function NewCaseModal({
       <div className="glass-card w-full max-w-2xl p-6 max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-bold">قضية جديدة</h3>
-          <button onClick={onClose}><X className="w-5 h-5" /></button>
+          <button onClick={onClose}>
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); create.mutate(form); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            create.mutate(form);
+          }}
           className="space-y-3"
         >
           <Field label="الموكل" required>
-            <select required value={form.client_id} onChange={(e) => setForm({ ...form, client_id: e.target.value })} className="cinput">
+            <select
+              required
+              value={form.client_id}
+              onChange={(e) => setForm({ ...form, client_id: e.target.value })}
+              className="cinput"
+            >
               <option value="">اختر موكلاً</option>
-              {clients.filter((c: any) => c?.id).map((c: any) => <option key={c?.id} value={c?.id}>{c.full_name}</option>)}
+              {clients
+                .filter((c: any) => c?.id)
+                .map((c: any) => (
+                  <option key={c?.id} value={c?.id}>
+                    {c.full_name}
+                  </option>
+                ))}
             </select>
           </Field>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Field label="رقم القضية" required>
-              <input required value={form.case_number} onChange={(e) => setForm({ ...form, case_number: e.target.value })} className="cinput" />
+              <input
+                required
+                value={form.case_number}
+                onChange={(e) => setForm({ ...form, case_number: e.target.value })}
+                className="cinput"
+              />
             </Field>
             <Field label="سنة القضية" required>
-              <input required type="number" min="1900" max="2100" value={form.case_year} onChange={(e) => setForm({ ...form, case_year: e.target.value })} className="cinput" />
+              <input
+                required
+                type="number"
+                min="1900"
+                max="2100"
+                value={form.case_year}
+                onChange={(e) => setForm({ ...form, case_year: e.target.value })}
+                className="cinput"
+              />
             </Field>
             <Field label="نوع القضية" required>
-              <select required value={form.case_category} onChange={(e) => setForm({ ...form, case_category: e.target.value })} className="cinput">
-                {CASE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              <select
+                required
+                value={form.case_category}
+                onChange={(e) => setForm({ ...form, case_category: e.target.value })}
+                className="cinput"
+              >
+                {CASE_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
               </select>
             </Field>
             <Field label="المركز / المحكمة" required>
-              <input required value={form.court_location} onChange={(e) => setForm({ ...form, court_location: e.target.value })} className="cinput" placeholder="الإسماعيلية" />
+              <input
+                required
+                value={form.court_location}
+                onChange={(e) => setForm({ ...form, court_location: e.target.value })}
+                className="cinput"
+                placeholder="الإسماعيلية"
+              />
             </Field>
           </div>
 
@@ -146,19 +180,37 @@ export function NewCaseModal({
 
           <div className="grid md:grid-cols-2 gap-3">
             <Field label="اسم المحكمة (تفصيلي)">
-              <input value={form.court_name} onChange={(e) => setForm({ ...form, court_name: e.target.value })} className="cinput" placeholder="محكمة الإسماعيلية الابتدائية" />
+              <input
+                value={form.court_name}
+                onChange={(e) => setForm({ ...form, court_name: e.target.value })}
+                className="cinput"
+                placeholder="محكمة الإسماعيلية الابتدائية"
+              />
             </Field>
             <Field label="الخصم">
-              <input value={form.opponent_name} onChange={(e) => setForm({ ...form, opponent_name: e.target.value })} className="cinput" />
+              <input
+                value={form.opponent_name}
+                onChange={(e) => setForm({ ...form, opponent_name: e.target.value })}
+                className="cinput"
+              />
             </Field>
           </div>
 
           <div className="grid md:grid-cols-2 gap-3">
             <Field label="موعد الجلسة القادمة">
-              <input type="datetime-local" value={form.next_session_date} onChange={(e) => setForm({ ...form, next_session_date: e.target.value })} className="cinput" />
+              <input
+                type="datetime-local"
+                value={form.next_session_date}
+                onChange={(e) => setForm({ ...form, next_session_date: e.target.value })}
+                className="cinput"
+              />
             </Field>
             <Field label="الحالة">
-              <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="cinput">
+              <select
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                className="cinput"
+              >
                 <option value="active">متداولة</option>
                 <option value="closed">منتهية</option>
               </select>
@@ -166,10 +218,18 @@ export function NewCaseModal({
           </div>
 
           <Field label="ملاحظات">
-            <textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="cinput" />
+            <textarea
+              rows={3}
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              className="cinput"
+            />
           </Field>
 
-          <button disabled={create.isPending} className="btn-gold w-full py-2.5 rounded-md font-bold">
+          <button
+            disabled={create.isPending}
+            className="btn-gold w-full py-2.5 rounded-md font-bold"
+          >
             {create.isPending ? "..." : "حفظ القضية"}
           </button>
         </form>
@@ -183,7 +243,10 @@ export function NewCaseModal({
 function Field({ label, children, required }: any) {
   return (
     <label className="block">
-      <span className="text-sm text-muted-foreground mb-1 block">{label}{required && <span className="text-[var(--gold)]"> *</span>}</span>
+      <span className="text-sm text-muted-foreground mb-1 block">
+        {label}
+        {required && <span className="text-[var(--gold)]"> *</span>}
+      </span>
       {children}
     </label>
   );

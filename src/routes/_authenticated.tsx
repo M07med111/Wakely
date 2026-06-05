@@ -1,10 +1,16 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { lazy, Suspense } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/sidebar";
-import { AIAssistant } from "@/components/ai-assistant";
-import { MultiFab } from "@/components/multi-fab";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionTimeout } from "@/hooks/use-session-timeout";
+
+const AIAssistant = lazy(() =>
+  import("@/components/ai-assistant").then((module) => ({ default: module.AIAssistant })),
+);
+const MultiFab = lazy(() =>
+  import("@/components/multi-fab").then((module) => ({ default: module.MultiFab })),
+);
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -29,8 +35,10 @@ function AuthLayout() {
           <Outlet />
         </main>
       </div>
-      <MultiFab />
-      <AIAssistant />
+      <Suspense fallback={null}>
+        <MultiFab />
+        <AIAssistant />
+      </Suspense>
     </div>
   );
 }

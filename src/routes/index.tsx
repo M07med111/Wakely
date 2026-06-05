@@ -28,7 +28,10 @@ function Landing() {
             </div>
           </div>
         </div>
-        <Link to="/login" className="btn-gold px-4 md:px-5 py-2 rounded-xl font-semibold text-sm shrink-0">
+        <Link
+          to="/login"
+          className="btn-gold px-4 md:px-5 py-2 rounded-xl font-semibold text-sm shrink-0"
+        >
           دخول
         </Link>
       </header>
@@ -42,8 +45,8 @@ function Landing() {
           <br className="hidden md:block" /> للمستشار محسن عياده
         </h1>
         <p className="mt-5 max-w-2xl mx-auto text-base md:text-lg text-muted-foreground px-2">
-          منصّة متكاملة وأنيقة لإدارة الموكلين، القضايا، الجلسات، المستندات والمدفوعات —
-          مصمّمة لتعمل بكفاءة على هاتفك ومكتبك.
+          منصّة متكاملة وأنيقة لإدارة الموكلين، القضايا، الجلسات، المستندات والمدفوعات — مصمّمة
+          لتعمل بكفاءة على هاتفك ومكتبك.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link to="/login" className="btn-gold px-6 md:px-7 py-3 rounded-xl font-semibold">

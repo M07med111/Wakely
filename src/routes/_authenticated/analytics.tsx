@@ -22,7 +22,15 @@ import {
 } from "recharts";
 import { useMemo, useState } from "react";
 import { exportToExcel, printElement } from "@/lib/export-utils";
-import { FileSpreadsheet, Printer, TrendingUp, Wallet, Briefcase, CalendarClock, Users } from "lucide-react";
+import {
+  FileSpreadsheet,
+  Printer,
+  TrendingUp,
+  Wallet,
+  Briefcase,
+  CalendarClock,
+  Users,
+} from "lucide-react";
 import { format, subMonths, startOfMonth } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
@@ -73,7 +81,9 @@ function Analytics() {
   const months = useMemo(() => lastNMonths(range), [range]);
 
   const revenueByMonth = useMemo(() => {
-    const base = Object.fromEntries(months.map((m) => [m.key, { month: m.label, paid: 0, pending: 0 }]));
+    const base = Object.fromEntries(
+      months.map((m) => [m.key, { month: m.label, paid: 0, pending: 0 }]),
+    );
     (data?.payments ?? []).forEach((p: any) => {
       const dt = p.paid_at || p.due_date || p.created_at;
       if (!dt) return;
@@ -150,8 +160,8 @@ function Analytics() {
     };
   }, [data]);
 
-  function exportXlsx() {
-    exportToExcel(`mizan-analytics-${format(new Date(), "yyyy-MM-dd")}`, [
+  async function exportXlsx() {
+    await exportToExcel(`mizan-analytics-${format(new Date(), "yyyy-MM-dd")}`, [
       { name: "الإيرادات", rows: revenueByMonth },
       { name: "القضايا حسب الحالة", rows: casesByStatus },
       { name: "القضايا حسب النوع", rows: casesByType },
@@ -236,10 +246,24 @@ function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.2} />
                 <XAxis dataKey="month" stroke="#999" fontSize={12} />
                 <YAxis stroke="#999" fontSize={12} />
-                <Tooltip contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }} />
+                <Tooltip
+                  contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }}
+                />
                 <Legend />
-                <Area type="monotone" dataKey="paid" name="مدفوع" stroke={GOLD} fill="url(#gPaid)" />
-                <Area type="monotone" dataKey="pending" name="معلّق" stroke={GOLD_SOFT} fill="url(#gPend)" />
+                <Area
+                  type="monotone"
+                  dataKey="paid"
+                  name="مدفوع"
+                  stroke={GOLD}
+                  fill="url(#gPaid)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="pending"
+                  name="معلّق"
+                  stroke={GOLD_SOFT}
+                  fill="url(#gPend)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -260,7 +284,9 @@ function Analytics() {
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }} />
+                <Tooltip
+                  contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -272,7 +298,9 @@ function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.2} />
                 <XAxis dataKey="name" stroke="#999" fontSize={12} />
                 <YAxis stroke="#999" fontSize={12} />
-                <Tooltip contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }} />
+                <Tooltip
+                  contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }}
+                />
                 <Bar dataKey="value" name="عدد القضايا" fill={GOLD} radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -284,10 +312,26 @@ function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.2} />
                 <XAxis dataKey="month" stroke="#999" fontSize={12} />
                 <YAxis stroke="#999" fontSize={12} />
-                <Tooltip contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }} />
+                <Tooltip
+                  contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }}
+                />
                 <Legend />
-                <Line type="monotone" dataKey="completed" name="مكتملة" stroke={GOLD} strokeWidth={2} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="upcoming" name="قادمة" stroke={GOLD_SOFT} strokeWidth={2} dot={{ r: 4 }} />
+                <Line
+                  type="monotone"
+                  dataKey="completed"
+                  name="مكتملة"
+                  stroke={GOLD}
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="upcoming"
+                  name="قادمة"
+                  stroke={GOLD_SOFT}
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -298,7 +342,9 @@ function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.2} />
                 <XAxis dataKey="month" stroke="#999" fontSize={12} />
                 <YAxis stroke="#999" fontSize={12} />
-                <Tooltip contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }} />
+                <Tooltip
+                  contentStyle={{ background: "#222", border: "1px solid #444", borderRadius: 8 }}
+                />
                 <Bar dataKey="count" name="عدد الموكلين" fill={GOLD_SOFT} radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -309,7 +355,15 @@ function Analytics() {
   );
 }
 
-function ChartCard({ title, children, full }: { title: string; children: React.ReactNode; full?: boolean }) {
+function ChartCard({
+  title,
+  children,
+  full,
+}: {
+  title: string;
+  children: React.ReactNode;
+  full?: boolean;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}

@@ -23,7 +23,8 @@ function LoginPage() {
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
-          email, password,
+          email,
+          password,
           options: {
             emailRedirectTo: `${window.location.origin}/dashboard`,
             data: { full_name: fullName },
@@ -53,7 +54,12 @@ function LoginPage() {
         <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="oklch(0.78 0.13 80 / 8%)" strokeWidth="0.5" />
+              <path
+                d="M 40 0 L 0 0 0 40"
+                fill="none"
+                stroke="oklch(0.78 0.13 80 / 8%)"
+                strokeWidth="0.5"
+              />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
@@ -73,7 +79,9 @@ function LoginPage() {
               <Scale className="w-8 h-8" />
             </div>
             <div>
-              <h1 className="font-display text-3xl gold-text font-bold leading-tight">المستشار محسن عياده</h1>
+              <h1 className="font-display text-3xl gold-text font-bold leading-tight">
+                المستشار محسن عياده
+              </h1>
               <p className="text-xs text-muted-foreground mt-1">للمحاماة والاستشارات القانونية</p>
             </div>
           </div>
@@ -81,12 +89,21 @@ function LoginPage() {
             منصّة <span className="gold-text">احترافية</span> لإدارة مكتبك القانوني
           </h2>
           <p className="text-muted-foreground mt-4 leading-relaxed">
-            تابع موكليك وقضاياك وجلساتك ومدفوعاتك من مكان واحد، مع مساعد ذكي للصياغة القانونية وتقارير تفصيلية.
+            تابع موكليك وقضاياك وجلساتك ومدفوعاتك من مكان واحد، مع مساعد ذكي للصياغة القانونية
+            وتقارير تفصيلية.
           </p>
           <div className="mt-8 space-y-3">
-            <Feature icon={Shield} title="حماية وخصوصية" desc="تشفير كامل للبيانات وصلاحيات دقيقة." />
+            <Feature
+              icon={Shield}
+              title="حماية وخصوصية"
+              desc="تشفير كامل للبيانات وصلاحيات دقيقة."
+            />
             <Feature icon={Sparkles} title="مساعد ذكي" desc="تلخيص قضايا وصياغة مذكرات بضغطة زر." />
-            <Feature icon={Scale} title="منظومة متكاملة" desc="موكلون، قضايا، جلسات، مدفوعات وتقارير." />
+            <Feature
+              icon={Scale}
+              title="منظومة متكاملة"
+              desc="موكلون، قضايا، جلسات، مدفوعات وتقارير."
+            />
           </div>
         </motion.div>
 
@@ -115,17 +132,38 @@ function LoginPage() {
           <form onSubmit={submit} className="mt-7 space-y-4">
             {mode === "signup" && (
               <Field label="الاسم الكامل">
-                <input className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                <input
+                  className="input"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
               </Field>
             )}
             <Field label="البريد الإلكتروني">
-              <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <input
+                type="email"
+                className="input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </Field>
             <Field label="كلمة المرور">
-              <input type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <input
+                type="password"
+                className="input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
             </Field>
 
-            <button disabled={loading} className="btn-gold w-full py-3 rounded-lg font-bold disabled:opacity-60">
+            <button
+              disabled={loading}
+              className="btn-gold w-full py-3 rounded-lg font-bold disabled:opacity-60"
+            >
               {loading ? "..." : mode === "signin" ? "دخول إلى اللوحة" : "إنشاء حساب"}
             </button>
           </form>

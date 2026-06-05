@@ -25,7 +25,9 @@ export function DetailsModalShell({
   // Close on ESC
   React.useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => {
@@ -39,7 +41,9 @@ export function DetailsModalShell({
       {open && (
         <motion.div
           className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/70 backdrop-blur-md p-0 md:p-4"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           onClick={onClose}
         >
           <motion.div
@@ -47,7 +51,9 @@ export function DetailsModalShell({
             drag={isMobile ? "y" : false}
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.4 }}
-            onDragEnd={(_, info) => { if (info.offset.y > 120) onClose(); }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 120) onClose();
+            }}
             initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 10 }}
             animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
             exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 10 }}
@@ -63,11 +69,17 @@ export function DetailsModalShell({
             <div className="flex items-start justify-between gap-3 p-4 md:p-6 border-b border-border shrink-0 bg-background/40 backdrop-blur">
               <div className="min-w-0 flex-1">
                 <div className="text-lg md:text-xl font-bold truncate">{title}</div>
-                {subtitle && <div className="text-xs text-muted-foreground mt-1 truncate">{subtitle}</div>}
+                {subtitle && (
+                  <div className="text-xs text-muted-foreground mt-1 truncate">{subtitle}</div>
+                )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {actions}
-                <button onClick={onClose} aria-label="إغلاق" className="p-1.5 rounded-md hover:bg-muted">
+                <button
+                  onClick={onClose}
+                  aria-label="إغلاق"
+                  className="p-1.5 rounded-md hover:bg-muted"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>

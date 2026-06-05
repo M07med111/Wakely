@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TopBar } from "@/components/sidebar";
@@ -8,59 +8,31 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import {
-  Database, Download, RefreshCw, Trash2, Upload, FileSpreadsheet,
-  FileJson, ShieldAlert, ArrowRight, HardDriveDownload, Clock, User as UserIcon,
+  Database,
+  Download,
+  RefreshCw,
+  Trash2,
+  Upload,
+  FileSpreadsheet,
+  FileJson,
+  ShieldAlert,
+  ArrowRight,
+  HardDriveDownload,
+  Clock,
+  User as UserIcon,
 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
-import * as XLSX from "xlsx";
-import { z } from "zod";
+import {
+  BACKUP_TABLES,
+  snapshotToXlsx,
+  validateSnapshot,
+  type BackupSnapshot,
+  type BackupTableName,
+} from "@/lib/backup-utils";
 
 export const Route = createFileRoute("/_authenticated/backups")({
   component: BackupsPage,
 });
-
-// Tables included in the backup snapshot (all RLS-scoped to current user)
-const TABLES = [
-  "clients",
-  "cases",
-  "sessions",
-  "payments",
-  "payment_installments",
-  "documents",
-  "case_activities",
-] as const;
-
-type TableName = (typeof TABLES)[number];
-
-type Snapshot = {
-  version: 1;
-  created_at: string;
-  user_id: string;
-  tables: Record<TableName, any[]>;
-};
-
-/** Strict Zod schema for restore payloads: bounded sizes, UUIDs validated. */
-const MAX_ROWS_PER_TABLE = 10_000;
-const RowSchema = z.record(z.string().min(1).max(128), z.any()).refine(
-  (r) => !("id" in r) || (typeof r.id === "string" && z.string().uuid().safeParse(r.id).success),
-  { message: "row.id must be a valid UUID" },
-);
-const SnapshotSchema = z.object({
-  version: z.literal(1),
-  created_at: z.string().min(1).max(64),
-  user_id: z.string().uuid().optional().or(z.literal("")),
-  tables: z.object(
-    Object.fromEntries(TABLES.map((t) => [t, z.array(RowSchema).max(MAX_ROWS_PER_TABLE).optional()])) as Record<TableName, z.ZodOptional<z.ZodArray<typeof RowSchema>>>,
-  ),
-});
-
-function validateSnapshot(raw: unknown): Snapshot {
-  const parsed = SnapshotSchema.safeParse(raw);
-  if (!parsed.success) throw new Error("ملف غير صالح: " + parsed.error.issues[0]?.message);
-  const tables = {} as Snapshot["tables"];
-  for (const t of TABLES) tables[t] = (parsed.data.tables as any)[t] ?? [];
-  return { version: 1, created_at: parsed.data.created_at, user_id: String(parsed.data.user_id ?? ""), tables };
-}
 
 function fmtBytes(n: number) {
   if (!n) return "0 KB";
@@ -69,9 +41,9 @@ function fmtBytes(n: number) {
   return `${(n / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-async function buildSnapshot(userId: string): Promise<Snapshot> {
+async function buildSnapshot(userId: string): Promise<BackupSnapshot> {
   const tables: Record<string, any[]> = {};
-  for (const t of TABLES) {
+  for (const t of BACKUP_TABLES) {
     const { data, error } = await supabase.from(t).select("*");
     if (error) throw new Error(`فشل قراءة ${t}: ${error.message}`);
     tables[t] = data ?? [];
@@ -80,7 +52,7 @@ async function buildSnapshot(userId: string): Promise<Snapshot> {
     version: 1,
     created_at: new Date().toISOString(),
     user_id: userId,
-    tables: tables as Snapshot["tables"],
+    tables: tables as BackupSnapshot["tables"],
   };
 }
 
@@ -93,17 +65,6 @@ function downloadBlob(blob: Blob, filename: string) {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
-}
-
-function snapshotToXlsx(snap: Snapshot): Blob {
-  const wb = XLSX.utils.book_new();
-  for (const t of TABLES) {
-    const rows = snap.tables[t] ?? [];
-    const ws = XLSX.utils.json_to_sheet(rows.length ? rows : [{}]);
-    XLSX.utils.book_append_sheet(wb, ws, t.slice(0, 31));
-  }
-  const out = XLSX.write(wb, { type: "array", bookType: "xlsx" });
-  return new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
 }
 
 function BackupsPage() {
@@ -145,7 +106,7 @@ function BackupsPage() {
       if (upErr) throw upErr;
 
       const counts: Record<string, number> = {};
-      for (const t of TABLES) counts[t] = snap.tables[t]?.length ?? 0;
+      for (const t of BACKUP_TABLES) counts[t] = snap.tables[t]?.length ?? 0;
 
       const { error: insErr } = await supabase.from("backups").insert({
         user_id: user.id,
@@ -172,9 +133,12 @@ function BackupsPage() {
       const snap = await buildSnapshot(user.id);
       const stamp = format(new Date(), "yyyy-MM-dd-HHmm");
       if (kind === "json") {
-        downloadBlob(new Blob([JSON.stringify(snap, null, 2)], { type: "application/json" }), `backup-${stamp}.json`);
+        downloadBlob(
+          new Blob([JSON.stringify(snap, null, 2)], { type: "application/json" }),
+          `backup-${stamp}.json`,
+        );
       } else {
-        downloadBlob(snapshotToXlsx(snap), `backup-${stamp}.xlsx`);
+        downloadBlob(await snapshotToXlsx(snap), `backup-${stamp}.xlsx`);
       }
       toast.success("تم التصدير");
     } catch (e: any) {
@@ -192,9 +156,14 @@ function BackupsPage() {
       if (error) throw error;
       const text = await data.text();
       const snap = validateSnapshot(JSON.parse(text));
-      const name = path.split("/").pop()?.replace(/\.json$/, "") || "backup";
-      if (kind === "json") downloadBlob(new Blob([text], { type: "application/json" }), `${name}.json`);
-      else downloadBlob(snapshotToXlsx(snap), `${name}.xlsx`);
+      const name =
+        path
+          .split("/")
+          .pop()
+          ?.replace(/\.json$/, "") || "backup";
+      if (kind === "json")
+        downloadBlob(new Blob([text], { type: "application/json" }), `${name}.json`);
+      else downloadBlob(await snapshotToXlsx(snap), `${name}.xlsx`);
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -217,10 +186,18 @@ function BackupsPage() {
   });
 
   // --- Restore from a backup ---
-  async function runRestore(snap: Snapshot) {
+  async function runRestore(snap: BackupSnapshot) {
     if (!user?.id) throw new Error("انتهت الجلسة");
     // Insert in dependency order, rewrite user_id to current user, upsert by id
-    const order: TableName[] = ["clients", "cases", "payments", "payment_installments", "sessions", "documents", "case_activities"];
+    const order: BackupTableName[] = [
+      "clients",
+      "cases",
+      "payments",
+      "payment_installments",
+      "sessions",
+      "documents",
+      "case_activities",
+    ];
     for (const t of order) {
       const rows = (snap.tables[t] ?? []).map((r: any) => ({ ...r, user_id: user.id }));
       if (!rows.length) continue;
@@ -269,8 +246,13 @@ function BackupsPage() {
         <div className="glass-card p-8 text-center max-w-md mx-auto mt-10">
           <ShieldAlert className="w-10 h-10 text-rose-400 mx-auto mb-3" />
           <h2 className="text-xl font-bold mb-1">صلاحية مسؤول مطلوبة</h2>
-          <p className="text-sm text-muted-foreground mb-4">صفحة النسخ الاحتياطي متاحة للمسؤولين فقط.</p>
-          <Link to="/dashboard" className="text-sm text-[var(--gold)] inline-flex items-center gap-1">
+          <p className="text-sm text-muted-foreground mb-4">
+            صفحة النسخ الاحتياطي متاحة للمسؤولين فقط.
+          </p>
+          <Link
+            to="/dashboard"
+            className="text-sm text-[var(--gold)] inline-flex items-center gap-1"
+          >
             <ArrowRight className="w-4 h-4" /> العودة للرئيسية
           </Link>
         </div>
@@ -285,7 +267,9 @@ function BackupsPage() {
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Database className="w-7 h-7 text-[var(--gold)]" /> النسخ الاحتياطي
         </h1>
-        <p className="text-muted-foreground mt-1">إنشاء واستعادة نسخ احتياطية كاملة لبيانات المكتب.</p>
+        <p className="text-muted-foreground mt-1">
+          إنشاء واستعادة نسخ احتياطية كاملة لبيانات المكتب.
+        </p>
       </div>
 
       {/* Actions */}
@@ -297,7 +281,9 @@ function BackupsPage() {
         >
           <HardDriveDownload className="w-5 h-5" />
           <div className="text-right">
-            <div className="text-sm">{busy === "create" ? "جارٍ الإنشاء..." : "إنشاء نسخة احتياطية"}</div>
+            <div className="text-sm">
+              {busy === "create" ? "جارٍ الإنشاء..." : "إنشاء نسخة احتياطية"}
+            </div>
             <div className="text-[11px] opacity-80 font-normal">حفظ + إضافة للسجل</div>
           </div>
         </button>
@@ -308,7 +294,9 @@ function BackupsPage() {
         >
           <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
           <div className="text-right">
-            <div className="text-sm font-semibold">{busy === "export-xlsx" ? "..." : "تصدير Excel"}</div>
+            <div className="text-sm font-semibold">
+              {busy === "export-xlsx" ? "..." : "تصدير Excel"}
+            </div>
             <div className="text-[11px] text-muted-foreground">تنزيل فوري بدون حفظ</div>
           </div>
         </button>
@@ -319,7 +307,9 @@ function BackupsPage() {
         >
           <FileJson className="w-5 h-5 text-sky-400" />
           <div className="text-right">
-            <div className="text-sm font-semibold">{busy === "export-json" ? "..." : "تصدير JSON"}</div>
+            <div className="text-sm font-semibold">
+              {busy === "export-json" ? "..." : "تصدير JSON"}
+            </div>
             <div className="text-[11px] text-muted-foreground">تنزيل فوري بدون حفظ</div>
           </div>
         </button>
@@ -329,8 +319,12 @@ function BackupsPage() {
       <div className="glass-card p-4 mb-6">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <div className="font-semibold flex items-center gap-2"><Upload className="w-4 h-4 text-[var(--gold)]" /> استعادة من ملف JSON</div>
-            <div className="text-xs text-muted-foreground mt-1">ارفع ملف نسخة احتياطية (.json) لاستعادته.</div>
+            <div className="font-semibold flex items-center gap-2">
+              <Upload className="w-4 h-4 text-[var(--gold)]" /> استعادة من ملف JSON
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">
+              ارفع ملف نسخة احتياطية (.json) لاستعادته.
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <input
@@ -354,15 +348,24 @@ function BackupsPage() {
       <h2 className="text-lg font-bold mb-3">سجل النسخ الاحتياطية</h2>
       {isLoading ? (
         <div className="grid gap-3 animate-pulse">
-          {[0, 1, 2].map((i) => <div key={i} className="h-20 bg-muted/50 rounded-xl" />)}
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-20 bg-muted/50 rounded-xl" />
+          ))}
         </div>
       ) : backups.length === 0 ? (
-        <EmptyState icon={Database} title="لا توجد نسخ بعد" description="أنشئ أول نسخة احتياطية لحفظ بيانات المكتب." />
+        <EmptyState
+          icon={Database}
+          title="لا توجد نسخ بعد"
+          description="أنشئ أول نسخة احتياطية لحفظ بيانات المكتب."
+        />
       ) : (
         <div className="grid gap-3">
           {backups.map((b: any) => {
             const counts = b.record_counts || {};
-            const total = Object.values(counts).reduce((s: number, n: any) => s + Number(n || 0), 0);
+            const total = Object.values(counts).reduce(
+              (s: number, n: any) => s + Number(n || 0),
+              0,
+            );
             return (
               <div key={b.id} className="glass-card p-4">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -386,7 +389,10 @@ function BackupsPage() {
                     )}
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {Object.entries(counts).map(([k, v]: any) => (
-                        <span key={k} className="text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground border border-border">
+                        <span
+                          key={k}
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground border border-border"
+                        >
                           {k}: {v}
                         </span>
                       ))}
@@ -436,11 +442,19 @@ function BackupsPage() {
               <h3 className="text-lg font-bold text-amber-300">تأكيد الاستعادة</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-2">
-              سيتم استعادة جميع السجلات من النسخة الاحتياطية ودمجها مع البيانات الحالية (سيتم تحديث السجلات المطابقة بنفس المعرّف).
+              سيتم استعادة جميع السجلات من النسخة الاحتياطية ودمجها مع البيانات الحالية (سيتم تحديث
+              السجلات المطابقة بنفس المعرّف).
             </p>
-            <p className="text-xs text-rose-400 mb-4">تحذير: قد يتم استبدال بيانات حالية إذا كانت معرفاتها مطابقة.</p>
+            <p className="text-xs text-rose-400 mb-4">
+              تحذير: قد يتم استبدال بيانات حالية إذا كانت معرفاتها مطابقة.
+            </p>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setRestoreFor(null)} className="px-4 py-2 rounded-md border border-border text-sm">إلغاء</button>
+              <button
+                onClick={() => setRestoreFor(null)}
+                className="px-4 py-2 rounded-md border border-border text-sm"
+              >
+                إلغاء
+              </button>
               <button
                 disabled={busy === "restore"}
                 onClick={() => restoreStored.mutate(restoreFor)}

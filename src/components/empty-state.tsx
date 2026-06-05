@@ -28,11 +28,16 @@ export function EmptyState({
       </div>
       <h3 className="font-bold text-base">{title}</h3>
       {description && <p className="text-sm text-muted-foreground mt-1 max-w-xs">{description}</p>}
-      {actionLabel && (to ? (
-        <Link to={to} className="mt-5">{Btn}</Link>
-      ) : (
-        <button onClick={onAction} className="mt-5">{Btn}</button>
-      ))}
+      {actionLabel &&
+        (to ? (
+          <Link to={to} className="mt-5">
+            {Btn}
+          </Link>
+        ) : (
+          <button onClick={onAction} className="mt-5">
+            {Btn}
+          </button>
+        ))}
     </div>
   );
 }

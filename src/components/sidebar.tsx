@@ -1,7 +1,17 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, Briefcase, CalendarDays, Wallet, LogOut,
-  Scale, Search, BarChart3, Menu, X, Database,
+  LayoutDashboard,
+  Users,
+  Briefcase,
+  CalendarDays,
+  Wallet,
+  LogOut,
+  Scale,
+  Search,
+  BarChart3,
+  Menu,
+  X,
+  Database,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
@@ -18,9 +28,7 @@ const items = [
   { to: "/analytics", label: "التحليلات", icon: BarChart3 },
 ];
 
-const adminItems = [
-  { to: "/backups", label: "النسخ الاحتياطي", icon: Database },
-];
+const adminItems = [{ to: "/backups", label: "النسخ الاحتياطي", icon: Database }];
 
 // Mobile bottom nav: pick 5 most-used
 const mobileItems = items.slice(0, 5);
@@ -110,7 +118,9 @@ export function Sidebar({ userEmail }: { userEmail?: string | null }) {
           <aside className="relative w-72 bg-sidebar border-l border-border h-full p-4 flex flex-col animate-in slide-in-from-right">
             <div className="flex items-center justify-between">
               <BrandHeader />
-              <button onClick={() => setMobileOpen(false)} className="p-2"><X className="w-5 h-5" /></button>
+              <button onClick={() => setMobileOpen(false)} className="p-2">
+                <X className="w-5 h-5" />
+              </button>
             </div>
             <div className="mt-6">{NavList}</div>
             <div className="mt-auto pt-4 border-t border-border">
@@ -146,7 +156,9 @@ export function Sidebar({ userEmail }: { userEmail?: string | null }) {
             const active = path === it.to || path.startsWith(it.to + "/");
             return (
               <Link key={it.to} to={it.to} className={`mobile-nav-item ${active ? "active" : ""}`}>
-                <span className="mn-icon"><it.icon className="w-5 h-5" /></span>
+                <span className="mn-icon">
+                  <it.icon className="w-5 h-5" />
+                </span>
                 <span>{it.label}</span>
               </Link>
             );
@@ -181,7 +193,9 @@ export function TopBar({ children }: { children?: React.ReactNode }) {
         <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <div className="w-full bg-card border border-border rounded-xl pr-10 pl-3 py-2.5 text-sm text-muted-foreground group-hover:border-[var(--gold)] transition-colors flex items-center justify-between">
           <span>بحث سريع عن موكل أو قضية...</span>
-          <kbd className="hidden md:inline text-[10px] text-muted-foreground/70 border border-border rounded px-1.5 py-0.5">Ctrl K</kbd>
+          <kbd className="hidden md:inline text-[10px] text-muted-foreground/70 border border-border rounded px-1.5 py-0.5">
+            Ctrl K
+          </kbd>
         </div>
       </button>
       <NotificationBell />

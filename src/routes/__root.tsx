@@ -27,8 +27,13 @@ class GlobalErrorBoundary extends Component<{ children: ReactNode }, { hasError:
         <div className="flex min-h-screen items-center justify-center px-4">
           <div className="glass-card p-8 text-center max-w-md">
             <h1 className="text-2xl font-bold gold-text">حدث خطأ أثناء تحميل البيانات</h1>
-            <p className="mt-3 text-sm text-muted-foreground">تم منع انهيار الصفحة. يمكنك إعادة المحاولة بأمان.</p>
-            <button onClick={() => this.setState({ hasError: false })} className="mt-6 btn-gold px-5 py-2 rounded-md font-semibold">
+            <p className="mt-3 text-sm text-muted-foreground">
+              تم منع انهيار الصفحة. يمكنك إعادة المحاولة بأمان.
+            </p>
+            <button
+              onClick={() => this.setState({ hasError: false })}
+              className="mt-6 btn-gold px-5 py-2 rounded-md font-semibold"
+            >
               إعادة المحاولة
             </button>
           </div>
@@ -63,13 +68,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "محسن عياده" },
       { title: "المستشار محسن عياده — إدارة المكتب القانوني" },
-      { name: "description", content: "نظام إدارة القضايا والمكاتب القانونية للمستشار محسن عياده — متابعة الموكلين، القضايا، الجلسات والمدفوعات." },
+      {
+        name: "description",
+        content:
+          "نظام إدارة القضايا والمكاتب القانونية للمستشار محسن عياده — متابعة الموكلين، القضايا، الجلسات والمدفوعات.",
+      },
       { property: "og:title", content: "المستشار محسن عياده — إدارة المكتب القانوني" },
       { name: "twitter:title", content: "المستشار محسن عياده — إدارة المكتب القانوني" },
-      { property: "og:description", content: "نظام إدارة القضايا والمكاتب القانونية للمستشار محسن عياده — متابعة الموكلين، القضايا، الجلسات والمدفوعات." },
-      { name: "twitter:description", content: "نظام إدارة القضايا والمكاتب القانونية للمستشار محسن عياده — متابعة الموكلين، القضايا، الجلسات والمدفوعات." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/83b1086e-0187-4312-87aa-bb143edbbc8a" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/83b1086e-0187-4312-87aa-bb143edbbc8a" },
+      {
+        property: "og:description",
+        content:
+          "نظام إدارة القضايا والمكاتب القانونية للمستشار محسن عياده — متابعة الموكلين، القضايا، الجلسات والمدفوعات.",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "نظام إدارة القضايا والمكاتب القانونية للمستشار محسن عياده — متابعة الموكلين، القضايا، الجلسات والمدفوعات.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/83b1086e-0187-4312-87aa-bb143edbbc8a",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/83b1086e-0187-4312-87aa-bb143edbbc8a",
+      },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
