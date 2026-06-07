@@ -30,10 +30,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Rollup Linux native package
-        run: |
-          ROLLUP_VERSION="$(node -p "require('./node_modules/rollup/package.json').version")"
-          npm install --no-save "@rollup/rollup-linux-x64-gnu@$ROLLUP_VERSION"
+      - name: Install Linux optional native packages
+        run: npm install --include=optional --no-audit --no-fund
 
       - name: Build static app
         run: npm run build
