@@ -22,7 +22,7 @@ function LoginPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -31,6 +31,11 @@ function LoginPage() {
           },
         });
         if (error) throw error;
+        if (data.session) {
+          toast.success("تم إنشاء الحساب وتسجيل الدخول");
+          navigate({ to: "/dashboard" });
+          return;
+        }
         toast.success("تم إنشاء الحساب! تحقق من بريدك الإلكتروني.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
