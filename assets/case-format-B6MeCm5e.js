@@ -1,0 +1,1 @@
+const e=["جنائي","أسرة","مدني","عسكرية","محاكم اقتصادية","مجلس دولة","إدارية عليا"];function s(o){const t=o.case_number||"—",a=o.case_year||"—",n=o.case_category||"—",c=o.court_location||o.court_name||"—";return`${t} / ${a} / ${n} / ${c}`}export{e as C,s as f};
