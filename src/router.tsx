@@ -4,6 +4,9 @@ import { createRouter } from "@tanstack/react-router";
 import { DefaultPending } from "@/components/default-pending";
 import { routeTree } from "./routeTree.gen";
 
+const basepath =
+  import.meta.env.BASE_URL === "/" ? undefined : import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export const getRouter = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -18,6 +21,7 @@ export const getRouter = () => {
 
   const router = createRouter({
     routeTree,
+    basepath,
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,

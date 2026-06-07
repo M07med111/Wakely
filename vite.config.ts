@@ -11,8 +11,12 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
+    spa: {
+      enabled: process.env.GITHUB_PAGES === "true",
+    },
   },
   vite: {
+    base: process.env.GITHUB_PAGES === "true" ? "/--------------/" : "/",
     build: {
       rollupOptions: {
         output: {
