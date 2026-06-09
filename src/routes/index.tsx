@@ -30,10 +30,10 @@ function AuthenticatedHome({ userEmail }: { userEmail?: string | null }) {
   useSessionTimeout();
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex h-screen w-full overflow-hidden">
       <Sidebar userEmail={userEmail} />
-      <div className="flex-1 flex flex-col min-w-0">
-        <main className="flex-1 px-4 py-4 md:p-10 overflow-x-hidden pb-28 md:pb-10">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <main className="main-shell-scroll flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 pb-28 md:p-10 md:pb-10">
           <DashboardHome />
         </main>
       </div>

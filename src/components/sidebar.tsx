@@ -34,6 +34,8 @@ const adminItems = [
   { to: "/backups", label: "النسخ الاحتياطي", icon: Database },
 ];
 
+const adminDashboardItems = adminItems.slice(0, 1);
+
 // Mobile bottom nav: pick 5 most-used
 const mobileItems = items.slice(0, 5);
 
@@ -64,7 +66,13 @@ export function BrandHeader({ compact = false }: { compact?: boolean }) {
   );
 }
 
-export function Sidebar({ userEmail }: { userEmail?: string | null }) {
+export function Sidebar({
+  userEmail,
+  mode = "app",
+}: {
+  userEmail?: string | null;
+  mode?: "app" | "admin";
+}) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -75,7 +83,9 @@ export function Sidebar({ userEmail }: { userEmail?: string | null }) {
   }
 
   const { isAdmin } = useRoles();
-  const navItems = isAdmin ? [...items, ...adminItems] : items;
+  const navItems =
+    mode === "admin" ? adminDashboardItems : isAdmin ? [...items, ...adminItems] : items;
+  const bottomNavItems = mode === "admin" ? adminDashboardItems : mobileItems;
 
   const NavList = (
     <nav className="space-y-1">
@@ -99,7 +109,7 @@ export function Sidebar({ userEmail }: { userEmail?: string | null }) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-64 shrink-0 bg-sidebar border-l border-border min-h-screen p-4 sticky top-0">
+      <aside className="hidden h-screen shrink-0 overflow-hidden bg-sidebar p-4 md:sticky md:top-0 md:flex md:w-64 md:flex-col md:border-l md:border-border">
         <BrandHeader />
         <div className="mt-6">{NavList}</div>
         <div className="mt-auto pt-4 border-t border-border">
@@ -150,13 +160,13 @@ export function Sidebar({ userEmail }: { userEmail?: string | null }) {
         <div className="flex-1 min-w-0">
           <BrandHeader compact />
         </div>
-        <NotificationBell />
+        {mode === "app" && <NotificationBell />}
       </header>
 
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[oklch(0.14_0.01_70/95%)] backdrop-blur-xl border-t border-border safe-bottom">
         <div className="flex items-stretch px-1">
-          {mobileItems.map((it) => {
+          {bottomNavItems.map((it) => {
             const active = path === it.to || path.startsWith(it.to + "/");
             return (
               <Link key={it.to} to={it.to} className={`mobile-nav-item ${active ? "active" : ""}`}>

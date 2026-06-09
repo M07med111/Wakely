@@ -22,7 +22,6 @@ import { format } from "date-fns";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/empty-state";
-import { TopBar } from "@/components/sidebar";
 import { PageError, PageLoading } from "@/components/page-feedback";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRoles, type AppRole } from "@/hooks/use-role";
@@ -215,7 +214,6 @@ function AdminUsersPage() {
   if (!isAdmin) {
     return (
       <div>
-        <TopBar />
         <div className="glass-card p-8 text-center max-w-md mx-auto mt-10">
           <ShieldAlert className="w-10 h-10 text-rose-400 mx-auto mb-3" />
           <h2 className="text-xl font-bold mb-1">صلاحية مسؤول مطلوبة</h2>
@@ -274,7 +272,6 @@ function AdminUsersPage() {
 
   return (
     <div>
-      <TopBar />
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">

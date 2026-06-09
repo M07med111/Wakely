@@ -249,10 +249,7 @@ function BackupsPage() {
           <p className="text-sm text-muted-foreground mb-4">
             صفحة النسخ الاحتياطي متاحة للمسؤولين فقط.
           </p>
-          <Link
-            to="/"
-            className="text-sm text-[var(--gold)] inline-flex items-center gap-1"
-          >
+          <Link to="/" className="text-sm text-[var(--gold)] inline-flex items-center gap-1">
             <ArrowRight className="w-4 h-4" /> العودة للرئيسية
           </Link>
         </div>

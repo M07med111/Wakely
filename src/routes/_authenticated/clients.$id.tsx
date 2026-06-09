@@ -59,7 +59,11 @@ function ClientDetail() {
   const [confirmArchive, setConfirmArchive] = useState(false);
   const [confirmDel, setConfirmDel] = useState<0 | 1 | 2>(0);
 
-  const { data: client, isLoading: clientLoading, error: clientError } = useQuery({
+  const {
+    data: client,
+    isLoading: clientLoading,
+    error: clientError,
+  } = useQuery({
     queryKey: ["client", id],
     enabled: !!id,
     queryFn: async () => {
@@ -230,7 +234,12 @@ function ClientDetail() {
     );
 
   const pageError =
-    clientError ?? casesError ?? paymentsError ?? installmentsError ?? documentsError ?? sessionsError;
+    clientError ??
+    casesError ??
+    paymentsError ??
+    installmentsError ??
+    documentsError ??
+    sessionsError;
   if (pageError) return <PageError message={(pageError as Error).message} />;
 
   if (!client)

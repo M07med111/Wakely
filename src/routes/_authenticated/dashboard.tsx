@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -22,9 +22,6 @@ import { EmptyState } from "@/components/empty-state";
 import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  beforeLoad: () => {
-    throw redirect({ to: "/" });
-  },
   component: DashboardRoute,
 });
 
@@ -135,7 +132,8 @@ export function DashboardHome() {
         </div>
       </div>
     );
-  const pageError = statsError ?? upcomingError ?? overdueError ?? recentClientsError ?? pendingPaymentsError;
+  const pageError =
+    statsError ?? upcomingError ?? overdueError ?? recentClientsError ?? pendingPaymentsError;
   if (pageError) return <PageError message={(pageError as Error).message} />;
 
   const tiles = [

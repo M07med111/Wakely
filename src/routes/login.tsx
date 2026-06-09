@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { isConfiguredAdminEmail } from "@/lib/admin-access";
 
 export const Route = createFileRoute("/login")({
+  ssr: false,
   component: LoginPage,
 });
 

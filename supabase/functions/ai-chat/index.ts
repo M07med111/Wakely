@@ -118,10 +118,9 @@ serve(async (req) => {
     const messages = parsed.data.messages;
 
     const AI_API_KEY = Deno.env.get("AI_API_KEY");
-    const AI_API_BASE_URL = (Deno.env.get("AI_API_BASE_URL") ?? "https://api.openai.com/v1").replace(
-      /\/+$/,
-      "",
-    );
+    const AI_API_BASE_URL = (
+      Deno.env.get("AI_API_BASE_URL") ?? "https://api.openai.com/v1"
+    ).replace(/\/+$/, "");
     const AI_MODEL = Deno.env.get("AI_MODEL");
     if (!AI_API_KEY) throw new Error("AI_API_KEY not configured");
     if (!AI_MODEL) throw new Error("AI_MODEL not configured");

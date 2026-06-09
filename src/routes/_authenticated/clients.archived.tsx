@@ -25,7 +25,11 @@ function ArchivedClientsPage() {
     step: 1 | 2;
   } | null>(null);
 
-  const { data: clients = [], isLoading, error } = useQuery({
+  const {
+    data: clients = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["clients-archived"],
     queryFn: async () => {
       const { data, error } = await supabase

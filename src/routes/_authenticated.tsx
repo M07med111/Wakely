@@ -1,9 +1,9 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { lazy, Suspense } from "react";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/sidebar";
-import { supabase } from "@/integrations/supabase/client";
 import { useSessionTimeout } from "@/hooks/use-session-timeout";
+import { DefaultPending } from "@/components/default-pending";
 
 const AIAssistant = lazy(() =>
   import("@/components/ai-assistant").then((module) => ({ default: module.AIAssistant })),
@@ -14,31 +14,38 @@ const MultiFab = lazy(() =>
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/login" });
-    return { user: data.user };
-  },
   component: AuthLayout,
 });
 
 function AuthLayout() {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  const isAdminDashboard = path.startsWith("/admin/");
   useSessionTimeout();
-  if (loading || !user) return <div className="p-10 text-muted-foreground">جارٍ التحميل...</div>;
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/login", replace: true });
+    }
+  }, [loading, navigate, user]);
+
+  if (loading || !user) return <DefaultPending />;
 
   return (
-    <div className="flex min-h-screen w-full">
-      <Sidebar userEmail={user?.email} />
-      <div className="flex-1 flex flex-col min-w-0">
-        <main className="flex-1 px-4 py-4 md:p-10 overflow-x-hidden pb-28 md:pb-10">
+    <div className="flex h-screen w-full overflow-hidden">
+      <Sidebar userEmail={user?.email} mode={isAdminDashboard ? "admin" : "app"} />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <main className="main-shell-scroll flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 pb-28 md:p-10 md:pb-10">
           <Outlet />
         </main>
       </div>
-      <Suspense fallback={null}>
-        <MultiFab />
-        <AIAssistant />
-      </Suspense>
+      {!isAdminDashboard && (
+        <Suspense fallback={null}>
+          <MultiFab />
+          <AIAssistant />
+        </Suspense>
+      )}
     </div>
   );
 }
