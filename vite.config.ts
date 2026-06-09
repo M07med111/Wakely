@@ -17,7 +17,7 @@ export default defineConfig({
     tailwindcss(),
     tsconfigPaths(),
   ],
-  base: process.env.GITHUB_PAGES === "true" ? "/--------------/" : "/",
+  base: process.env.GITHUB_PAGES === "true" ? "/Wakely/" : "/",
   build: {
     rollupOptions: {
       output: {

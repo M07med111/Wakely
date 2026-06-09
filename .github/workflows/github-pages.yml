@@ -21,11 +21,30 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout published site
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          ref: gh-pages
-          path: site
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          GITHUB_PAGES: "true"
+          VITE_SUPABASE_URL: https://ponbabgkxpzqebmrsccv.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_McLA94os6-_3DjYE-EIn7g_4PvEznrL
+          VITE_SUPABASE_PROJECT_ID: ponbabgkxpzqebmrsccv
+
+      - name: Prepare SPA fallback
+        run: |
+          cp dist/client/_shell.html dist/client/index.html
+          cp dist/client/_shell.html dist/client/404.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -33,7 +52,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: dist/client
 
       - name: Deploy to GitHub Pages
         id: deployment
