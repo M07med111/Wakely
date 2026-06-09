@@ -11,38 +11,18 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { full_name: fullName },
-          },
-        });
-        if (error) throw error;
-        if (data.session) {
-          toast.success("تم إنشاء الحساب وتسجيل الدخول");
-          navigate({ to: "/dashboard" });
-          return;
-        }
-        toast.success("تم إنشاء الحساب! تحقق من بريدك الإلكتروني.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("مرحباً بعودتك");
-        navigate({ to: "/dashboard" });
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast.success("مرحباً بعودتك");
+      navigate({ to: "/dashboard" });
     } catch (err: any) {
       toast.error(err.message ?? "حدث خطأ");
     } finally {
@@ -128,23 +108,13 @@ function LoginPage() {
           </div>
 
           <h2 className="text-xl font-bold text-center lg:text-right mt-4 lg:mt-0">
-            {mode === "signin" ? "أهلاً بعودتك" : "إنشاء حساب جديد"}
+            أهلاً بعودتك
           </h2>
           <p className="text-sm text-muted-foreground text-center lg:text-right mt-1">
-            {mode === "signin" ? "سجّل الدخول للوصول إلى لوحة التحكم" : "أكمل البيانات للبدء"}
+            سجّل الدخول بالبيانات التي حصلت عليها للوصول إلى لوحة التحكم
           </p>
 
           <form onSubmit={submit} className="mt-7 space-y-4">
-            {mode === "signup" && (
-              <Field label="الاسم الكامل">
-                <input
-                  className="input"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </Field>
-            )}
             <Field label="البريد الإلكتروني">
               <input
                 type="email"
@@ -169,16 +139,9 @@ function LoginPage() {
               disabled={loading}
               className="btn-gold w-full py-3 rounded-lg font-bold disabled:opacity-60"
             >
-              {loading ? "..." : mode === "signin" ? "دخول إلى اللوحة" : "إنشاء حساب"}
+              {loading ? "..." : "دخول إلى اللوحة"}
             </button>
           </form>
-
-          <button
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="mt-5 w-full text-sm text-muted-foreground hover:text-[var(--gold)]"
-          >
-            {mode === "signin" ? "ليس لديك حساب؟ أنشئ واحداً" : "لديك حساب؟ سجّل الدخول"}
-          </button>
         </motion.div>
       </div>
 

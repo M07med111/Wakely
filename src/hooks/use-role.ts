@@ -11,12 +11,19 @@ export function useRoles() {
     enabled: !!user?.id,
     queryFn: async () => {
       if (!user?.id) return [];
+      const metadataRole = user.app_metadata?.role as AppRole | undefined;
+      const metadataRoles: AppRole[] = metadataRole ? [metadataRole] : [];
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id);
-      if (error) throw error;
-      return (data ?? []).map((r: any) => r.role as AppRole);
+      if (error) {
+        if (error.code === "PGRST205" || error.code === "42P01") return metadataRoles;
+        throw error;
+      }
+      return Array.from(
+        new Set([...metadataRoles, ...(data ?? []).map((r: any) => r.role as AppRole)]),
+      );
     },
   });
   return {
