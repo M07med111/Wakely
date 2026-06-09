@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -19,12 +19,20 @@ import { useState } from "react";
 import { CommandPalette } from "@/components/command-palette";
 import { NotificationBell } from "@/components/notification-center";
 import { EmptyState } from "@/components/empty-state";
+import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  component: Dashboard,
+  beforeLoad: () => {
+    throw redirect({ to: "/" });
+  },
+  component: DashboardRoute,
 });
 
-function Dashboard() {
+function DashboardRoute() {
+  return <DashboardHome />;
+}
+
+export function DashboardHome() {
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   const {
@@ -47,6 +55,8 @@ function Dashboard() {
           .lte("session_date", endOfDay),
         supabase.from("payments").select("amount,status").eq("status", "pending"),
       ]);
+      const error = [clients.error, cases.error, todaySess.error, payments.error].find(Boolean);
+      if (error) throw error;
       const pendingTotal = (payments.data ?? []).reduce((s, p) => s + Number(p.amount || 0), 0);
       return {
         clients: clients.count ?? 0,
@@ -57,23 +67,24 @@ function Dashboard() {
     },
   });
 
-  const { data: upcoming = [] } = useQuery({
+  const { data: upcoming = [], error: upcomingError } = useQuery({
     queryKey: ["today-sessions"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("sessions")
         .select("*, cases(id, case_number, court_name, clients(id, full_name))")
         .gte("session_date", new Date().toISOString())
         .order("session_date", { ascending: true })
         .limit(4);
+      if (error) throw error;
       return data ?? [];
     },
   });
 
-  const { data: overdueCases = [] } = useQuery({
+  const { data: overdueCases = [], error: overdueError } = useQuery({
     queryKey: ["overdue-cases"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("cases")
         .select("id, case_number, court_name, next_session_date, clients(id, full_name)")
         .neq("status", "closed")
@@ -81,31 +92,34 @@ function Dashboard() {
         .lt("next_session_date", new Date().toISOString())
         .order("next_session_date", { ascending: true })
         .limit(4);
+      if (error) throw error;
       return data ?? [];
     },
   });
 
-  const { data: recentClients = [] } = useQuery({
+  const { data: recentClients = [], error: recentClientsError } = useQuery({
     queryKey: ["recent-clients"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("clients")
         .select("id, full_name, phone")
         .order("created_at", { ascending: false })
         .limit(4);
+      if (error) throw error;
       return data ?? [];
     },
   });
 
-  const { data: pendingPayments = [] } = useQuery({
+  const { data: pendingPayments = [], error: pendingPaymentsError } = useQuery({
     queryKey: ["pending-payments-list"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("payments")
         .select("id, amount, due_date, cases(id, case_number, clients(id, full_name))")
         .eq("status", "pending")
         .order("due_date", { ascending: true })
         .limit(3);
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -121,12 +135,8 @@ function Dashboard() {
         </div>
       </div>
     );
-  if (statsError)
-    return (
-      <div className="glass-card p-8 text-center text-sm text-muted-foreground">
-        حدث خطأ أثناء تحميل البيانات: {(statsError as Error).message}
-      </div>
-    );
+  const pageError = statsError ?? upcomingError ?? overdueError ?? recentClientsError ?? pendingPaymentsError;
+  if (pageError) return <PageError message={(pageError as Error).message} />;
 
   const tiles = [
     {

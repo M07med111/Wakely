@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useRoles } from "@/hooks/use-role";
 import { format } from "date-fns";
 import { ArchivedClientDetailsModal } from "@/components/archived-client-details-modal";
+import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/clients/archived")({
   component: ArchivedClientsPage,
@@ -24,7 +25,7 @@ function ArchivedClientsPage() {
     step: 1 | 2;
   } | null>(null);
 
-  const { data: clients = [], isLoading } = useQuery({
+  const { data: clients = [], isLoading, error } = useQuery({
     queryKey: ["clients-archived"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -85,7 +86,9 @@ function ArchivedClientsPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {error ? (
+        <PageError message={(error as Error).message} />
+      ) : isLoading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-32 bg-muted/50 rounded-xl" />

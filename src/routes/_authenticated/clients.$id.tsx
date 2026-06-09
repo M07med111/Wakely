@@ -24,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/clients/$id")({
   component: ClientDetail,
@@ -58,7 +59,7 @@ function ClientDetail() {
   const [confirmArchive, setConfirmArchive] = useState(false);
   const [confirmDel, setConfirmDel] = useState<0 | 1 | 2>(0);
 
-  const { data: client, isLoading: clientLoading } = useQuery({
+  const { data: client, isLoading: clientLoading, error: clientError } = useQuery({
     queryKey: ["client", id],
     enabled: !!id,
     queryFn: async () => {
@@ -67,7 +68,7 @@ function ClientDetail() {
       return data;
     },
   });
-  const { data: cases = [] } = useQuery({
+  const { data: cases = [], error: casesError } = useQuery({
     queryKey: ["client-cases", id],
     enabled: !!id,
     queryFn: async () => {
@@ -80,7 +81,7 @@ function ClientDetail() {
       return data ?? [];
     },
   });
-  const { data: payments = [] } = useQuery({
+  const { data: payments = [], error: paymentsError } = useQuery({
     queryKey: ["client-payments", id],
     enabled: !!id,
     queryFn: async () => {
@@ -93,7 +94,7 @@ function ClientDetail() {
       return data ?? [];
     },
   });
-  const { data: installments = [] } = useQuery({
+  const { data: installments = [], error: installmentsError } = useQuery({
     queryKey: ["client-installments", id, payments.length],
     enabled: payments.length > 0,
     queryFn: async () => {
@@ -107,7 +108,7 @@ function ClientDetail() {
       return data ?? [];
     },
   });
-  const { data: documents = [] } = useQuery({
+  const { data: documents = [], error: documentsError } = useQuery({
     queryKey: ["client-documents", id],
     enabled: !!id,
     queryFn: async () => {
@@ -120,7 +121,7 @@ function ClientDetail() {
       return data ?? [];
     },
   });
-  const { data: sessions = [] } = useQuery({
+  const { data: sessions = [], error: sessionsError } = useQuery({
     queryKey: ["client-sessions", id, cases.length],
     enabled: cases.length > 0,
     queryFn: async () => {
@@ -227,6 +228,10 @@ function ClientDetail() {
         </div>
       </div>
     );
+
+  const pageError =
+    clientError ?? casesError ?? paymentsError ?? installmentsError ?? documentsError ?? sessionsError;
+  if (pageError) return <PageError message={(pageError as Error).message} />;
 
   if (!client)
     return (

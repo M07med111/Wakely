@@ -32,6 +32,7 @@ import {
   Users,
 } from "lucide-react";
 import { format, subMonths, startOfMonth } from "date-fns";
+import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
   component: Analytics,
@@ -57,7 +58,7 @@ function lastNMonths(n: number) {
 function Analytics() {
   const [range, setRange] = useState<6 | 12>(6);
 
-  const { data } = useQuery({
+  const { data, error } = useQuery({
     queryKey: ["analytics", range],
     queryFn: async () => {
       const since = subMonths(new Date(), range).toISOString();
@@ -67,6 +68,8 @@ function Analytics() {
         supabase.from("sessions").select("session_date,outcome,created_at"),
         supabase.from("clients").select("created_at,full_name"),
       ]);
+      const error = [payments.error, cases.error, sessions.error, clients.error].find(Boolean);
+      if (error) throw error;
 
       return {
         payments: payments.data ?? [],
@@ -177,6 +180,8 @@ function Analytics() {
     { label: "إجمالي الجلسات", value: totals.sessions, icon: CalendarClock },
     { label: "الموكلون", value: totals.clients, icon: Users },
   ];
+
+  if (error) return <PageError message={(error as Error).message} />;
 
   return (
     <div>

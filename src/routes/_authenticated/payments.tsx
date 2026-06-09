@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/empty-state";
 import { StatusBadge } from "@/components/status-badge";
 import { differenceInDays, format } from "date-fns";
+import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/payments")({
   component: PaymentsPage,
@@ -90,12 +91,7 @@ function PaymentsPage() {
         <div className="h-28 bg-muted/40 rounded-xl" />
       </div>
     );
-  if (error)
-    return (
-      <div className="glass-card p-8 text-center text-sm text-muted-foreground">
-        حدث خطأ أثناء تحميل البيانات: {(error as Error).message}
-      </div>
-    );
+  if (error) return <PageError message={(error as Error).message} />;
 
   return (
     <div>

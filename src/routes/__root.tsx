@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { Component, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { PageError } from "@/components/page-feedback";
 import appCss from "../styles.css?url";
 
 class GlobalErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
@@ -24,20 +25,10 @@ class GlobalErrorBoundary extends Component<{ children: ReactNode }, { hasError:
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-screen items-center justify-center px-4">
-          <div className="glass-card p-8 text-center max-w-md">
-            <h1 className="text-2xl font-bold gold-text">حدث خطأ أثناء تحميل البيانات</h1>
-            <p className="mt-3 text-sm text-muted-foreground">
-              تم منع انهيار الصفحة. يمكنك إعادة المحاولة بأمان.
-            </p>
-            <button
-              onClick={() => this.setState({ hasError: false })}
-              className="mt-6 btn-gold px-5 py-2 rounded-md font-semibold"
-            >
-              إعادة المحاولة
-            </button>
-          </div>
-        </div>
+        <PageError
+          title="حدث خطأ غير متوقع"
+          description="تم إيقاف تحميل هذه الصفحة لحماية التطبيق. جرّب التحديث للعودة للعمل."
+        />
       );
     }
     return this.props.children;

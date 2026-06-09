@@ -7,23 +7,25 @@ import { CalendarDays, Printer, FileSpreadsheet } from "lucide-react";
 import { useState, useMemo } from "react";
 import { formatCaseId } from "@/lib/case-format";
 import { exportToExcel } from "@/lib/export-utils";
+import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/sessions")({
   component: SessionsPage,
 });
 
 function SessionsPage() {
-  const { data: sessions = [] } = useQuery({
+  const { data: sessions = [], error } = useQuery({
     queryKey: ["all-sessions"],
-    queryFn: async () =>
-      (
-        await supabase
-          .from("sessions")
-          .select(
-            "*, cases(id, case_number, case_year, case_category, court_location, court_name, status, clients(id, full_name))",
-          )
-          .order("session_date", { ascending: true })
-      ).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sessions")
+        .select(
+          "*, cases(id, case_number, case_year, case_category, court_location, court_name, status, clients(id, full_name))",
+        )
+        .order("session_date", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
   });
 
   const today = new Date();
@@ -59,6 +61,8 @@ function SessionsPage() {
     }));
     await exportToExcel("تقرير_الجلسات_المستقبلية", [{ name: "جلسات", rows }]);
   }
+
+  if (error) return <PageError message={(error as Error).message} />;
 
   return (
     <div>

@@ -10,6 +10,7 @@ import { NewCaseModal } from "@/components/new-case-modal";
 import { formatCaseId } from "@/lib/case-format";
 import { CaseDetailsModal } from "@/components/case-details-modal";
 import { ClientDetailsModal } from "@/components/client-details-modal";
+import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/cases")({
   component: CasesPage,
@@ -196,14 +197,6 @@ function PageLoading() {
       <div className="h-8 w-40 bg-muted rounded" />
       <div className="h-12 w-full bg-muted/50 rounded" />
       <div className="h-52 bg-muted/40 rounded-xl" />
-    </div>
-  );
-}
-
-function PageError({ message }: { message: string }) {
-  return (
-    <div className="glass-card p-8 text-center text-sm text-muted-foreground">
-      حدث خطأ أثناء تحميل البيانات: {message}
     </div>
   );
 }

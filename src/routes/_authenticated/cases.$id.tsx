@@ -24,6 +24,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { ActivityTimeline } from "@/components/activity-timeline";
 import { CaseDocuments } from "@/components/case-documents";
 import { CasePayments } from "@/components/case-payments";
+import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/cases/$id")({
   component: CaseDetail,
@@ -56,7 +57,7 @@ function CaseDetail() {
       return data;
     },
   });
-  const { data: sessions = [] } = useQuery({
+  const { data: sessions = [], error: sessionsError } = useQuery({
     queryKey: ["case-sessions", id],
     enabled: !!id,
     queryFn: async () => {
@@ -160,12 +161,8 @@ function CaseDetail() {
       </div>
     );
 
-  if (caseError)
-    return (
-      <div className="glass-card p-8 text-center text-sm text-muted-foreground">
-        حدث خطأ أثناء تحميل البيانات: {(caseError as Error).message}
-      </div>
-    );
+  const pageError = caseError ?? sessionsError;
+  if (pageError) return <PageError message={(pageError as Error).message} />;
 
   if (!c)
     return (

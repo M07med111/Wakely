@@ -250,7 +250,7 @@ function BackupsPage() {
             صفحة النسخ الاحتياطي متاحة للمسؤولين فقط.
           </p>
           <Link
-            to="/dashboard"
+            to="/"
             className="text-sm text-[var(--gold)] inline-flex items-center gap-1"
           >
             <ArrowRight className="w-4 h-4" /> العودة للرئيسية

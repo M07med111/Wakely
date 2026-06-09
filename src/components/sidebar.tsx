@@ -20,7 +20,7 @@ import { NotificationBell } from "@/components/notification-center";
 import { useRoles } from "@/hooks/use-role";
 
 const items = [
-  { to: "/dashboard", label: "الرئيسية", icon: LayoutDashboard },
+  { to: "/", label: "الرئيسية", icon: LayoutDashboard },
   { to: "/clients", label: "الموكلون", icon: Users },
   { to: "/cases", label: "القضايا", icon: Briefcase },
   { to: "/sessions", label: "الجلسات", icon: CalendarDays },

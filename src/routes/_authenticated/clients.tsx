@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { NewCaseModal } from "@/components/new-case-modal";
 import { ClientDetailsModal } from "@/components/client-details-modal";
 import { ArchiveModal } from "@/components/archive-modal";
+import { PageError } from "@/components/page-feedback";
 
 export const Route = createFileRoute("/_authenticated/clients")({
   component: ClientsPage,
@@ -434,14 +435,6 @@ function PageLoading() {
           <div key={i} className="h-32 bg-muted/50 rounded-xl" />
         ))}
       </div>
-    </div>
-  );
-}
-
-function PageError({ message }: { message: string }) {
-  return (
-    <div className="glass-card p-8 text-center text-sm text-muted-foreground">
-      حدث خطأ أثناء تحميل البيانات: {message}
     </div>
   );
 }

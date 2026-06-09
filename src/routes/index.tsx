@@ -1,15 +1,49 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Scale, Shield, Briefcase, CalendarClock } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { lazy, Suspense } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { Sidebar } from "@/components/sidebar";
+import { useSessionTimeout } from "@/hooks/use-session-timeout";
+import { DashboardHome } from "@/routes/_authenticated/dashboard";
+import { PageLoading } from "@/components/page-feedback";
+
+const AIAssistant = lazy(() =>
+  import("@/components/ai-assistant").then((module) => ({ default: module.AIAssistant })),
+);
+const MultiFab = lazy(() =>
+  import("@/components/multi-fab").then((module) => ({ default: module.MultiFab })),
+);
 
 export const Route = createFileRoute("/")({
-  beforeLoad: async () => {
-    if (typeof window === "undefined") return;
-    const { data } = await supabase.auth.getSession();
-    if (data.session) throw redirect({ to: "/dashboard" });
-  },
-  component: Landing,
+  ssr: false,
+  component: Home,
 });
+
+function Home() {
+  const { user, loading } = useAuth();
+  if (loading) return <PageLoading />;
+  if (user) return <AuthenticatedHome userEmail={user.email} />;
+  return <Landing />;
+}
+
+function AuthenticatedHome({ userEmail }: { userEmail?: string | null }) {
+  useSessionTimeout();
+
+  return (
+    <div className="flex min-h-screen w-full">
+      <Sidebar userEmail={userEmail} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 px-4 py-4 md:p-10 overflow-x-hidden pb-28 md:pb-10">
+          <DashboardHome />
+        </main>
+      </div>
+      <Suspense fallback={null}>
+        <MultiFab />
+        <AIAssistant />
+      </Suspense>
+    </div>
+  );
+}
 
 function Landing() {
   return (

@@ -22,7 +22,7 @@ function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       toast.success("مرحباً بعودتك");
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/" });
     } catch (err: any) {
       toast.error(err.message ?? "حدث خطأ");
     } finally {
