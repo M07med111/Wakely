@@ -84,7 +84,7 @@ function CasesPage() {
       ) : (
         <>
           {/* Mobile: cards */}
-          <div className="md:hidden space-y-2">
+          <div className="space-y-2 lg:hidden">
             {cases
               .filter((c: any) => c?.id)
               .map((c: any) => (
@@ -128,7 +128,7 @@ function CasesPage() {
           </div>
 
           {/* Desktop: table */}
-          <div className="glass-card overflow-hidden hidden md:block">
+          <div className="glass-card hidden overflow-x-auto lg:block">
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-muted-foreground">
                 <tr>

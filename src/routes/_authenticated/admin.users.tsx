@@ -24,6 +24,14 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/empty-state";
 import { PageError, PageLoading } from "@/components/page-feedback";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRoles, type AppRole } from "@/hooks/use-role";
 import {
   banManagedUser,
@@ -83,6 +91,7 @@ function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<CreateForm>({
     email: "",
     password: "",
@@ -161,6 +170,7 @@ function AdminUsersPage() {
     onSuccess: (nextDetails) => {
       toast.success("تم إنشاء المستخدم");
       setCreateForm({ email: "", password: "", full_name: "", role: "staff", email_confirm: true });
+      setCreateOpen(false);
       setSelectedId(nextDetails.user.id);
       qc.setQueryData(["managed-user-details", nextDetails.user.id], nextDetails);
       qc.invalidateQueries({ queryKey: ["managed-users"] });
@@ -271,8 +281,8 @@ function AdminUsersPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
             <UsersRound className="w-7 h-7 text-[var(--gold)]" />
@@ -282,206 +292,180 @@ function AdminUsersPage() {
             إضافة الحسابات والتحكم في صلاحيات الدخول إلى النظام.
           </p>
         </div>
-        <button
-          onClick={() => qc.invalidateQueries({ queryKey: ["managed-users"] })}
-          disabled={usersLoading}
-          className="self-start px-3 py-2 rounded-md border border-border hover:border-[var(--gold)] text-sm inline-flex items-center gap-2 disabled:opacity-60"
-        >
-          <RefreshCw className={`w-4 h-4 ${usersLoading ? "animate-spin" : ""}`} />
-          تحديث
-        </button>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+            <DialogTrigger asChild>
+              <button className="btn-gold px-4 py-2.5 rounded-md font-bold inline-flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                إضافة مستخدم
+              </button>
+            </DialogTrigger>
+            <DialogContent
+              className="glass-card max-w-md border-border bg-card text-right"
+              dir="rtl"
+            >
+              <DialogHeader className="text-right">
+                <DialogTitle className="flex items-center gap-2">
+                  <UserPlus className="w-5 h-5 text-[var(--gold)]" />
+                  إضافة مستخدم جديد
+                </DialogTitle>
+              </DialogHeader>
+              <CreateUserForm
+                createForm={createForm}
+                setCreateForm={setCreateForm}
+                submitCreate={submitCreate}
+                pending={createMutation.isPending}
+              />
+            </DialogContent>
+          </Dialog>
+
+          <button
+            onClick={() => qc.invalidateQueries({ queryKey: ["managed-users"] })}
+            disabled={usersLoading}
+            className="px-3 py-2.5 rounded-md border border-border hover:border-[var(--gold)] text-sm inline-flex items-center gap-2 disabled:opacity-60"
+          >
+            <RefreshCw className={`w-4 h-4 ${usersLoading ? "animate-spin" : ""}`} />
+            تحديث
+          </button>
+        </div>
       </div>
 
-      <div className="grid xl:grid-cols-[360px_minmax(0,1fr)] gap-4">
-        <section className="glass-card p-4 h-fit">
-          <div className="flex items-center gap-2 mb-4">
-            <UserPlus className="w-5 h-5 text-[var(--gold)]" />
-            <h2 className="font-bold">إضافة مستخدم</h2>
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <StatCard label="الإجمالي" value={stats.total} icon={UsersRound} />
+        <StatCard label="مسؤولون" value={stats.admin} icon={ShieldCheck} tone="gold" />
+        <StatCard label="فريق العمل" value={stats.staff} icon={UserCircle2} tone="sky" />
+        <StatCard label="عملاء" value={stats.client} icon={Mail} tone="emerald" />
+        <StatCard label="محظورون" value={stats.banned} icon={Ban} tone="rose" />
+      </section>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+        <section className="glass-card min-w-0 p-4">
+          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="font-bold">كل المستخدمين</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                اختيار المستخدم يفتح تفاصيله في اللوحة المجاورة.
+              </p>
+            </div>
+            <div className="relative w-full md:w-80">
+              <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                className={`${inputClass} pr-9`}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="بحث بالاسم أو البريد أو المعرّف"
+              />
+            </div>
           </div>
-          <form onSubmit={submitCreate} className="space-y-3">
-            <Field label="الاسم">
-              <input
-                className={inputClass}
-                value={createForm.full_name}
-                onChange={(e) =>
-                  setCreateForm((current) => ({ ...current, full_name: e.target.value }))
-                }
-                placeholder="اسم المستخدم"
-              />
-            </Field>
-            <Field label="البريد الإلكتروني">
-              <input
-                className={inputClass}
-                type="email"
-                value={createForm.email}
-                onChange={(e) =>
-                  setCreateForm((current) => ({ ...current, email: e.target.value }))
-                }
-                required
-                placeholder="name@example.com"
-              />
-            </Field>
-            <Field label="كلمة المرور">
-              <input
-                className={inputClass}
-                type="password"
-                minLength={6}
-                value={createForm.password}
-                onChange={(e) =>
-                  setCreateForm((current) => ({ ...current, password: e.target.value }))
-                }
-                required
-                placeholder="6 أحرف على الأقل"
-              />
-            </Field>
-            <Field label="الدور">
-              <RoleSelect
-                value={createForm.role}
-                onChange={(role) => setCreateForm((current) => ({ ...current, role }))}
-              />
-            </Field>
-            <label className="flex items-center gap-2 text-sm text-muted-foreground py-1">
-              <Checkbox
-                checked={createForm.email_confirm}
-                onCheckedChange={(checked) =>
-                  setCreateForm((current) => ({ ...current, email_confirm: checked === true }))
-                }
-              />
-              تأكيد البريد تلقائياً
-            </label>
-            <button
-              disabled={createMutation.isPending}
-              className="btn-gold w-full py-2.5 rounded-md font-bold disabled:opacity-60 inline-flex items-center justify-center gap-2"
-            >
-              <UserPlus className="w-4 h-4" />
-              {createMutation.isPending ? "جارٍ الإنشاء..." : "إنشاء حساب"}
-            </button>
-          </form>
+
+          {usersError ? (
+            <PageError message={(usersError as Error).message} />
+          ) : usersLoading ? (
+            <UserListSkeleton />
+          ) : users.length === 0 ? (
+            <EmptyState
+              icon={UsersRound}
+              title="لا يوجد مستخدمون"
+              description="أنشئ أول مستخدم للنظام من زر الإضافة أعلى الصفحة."
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-muted-foreground border-b border-border">
+                  <tr>
+                    <th className="py-2 px-2 text-right font-medium">المستخدم</th>
+                    <th className="py-2 px-2 text-right font-medium">الدور</th>
+                    <th className="py-2 px-2 text-right font-medium">آخر دخول</th>
+                    <th className="py-2 px-2 text-right font-medium">الحالة</th>
+                    <th className="py-2 px-2 text-left font-medium">تحكم</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => {
+                    const selected = user.id === selectedId;
+                    return (
+                      <tr
+                        key={user.id}
+                        className={`border-b border-border/70 hover:bg-muted/30 ${selected ? "bg-[var(--gold)]/10" : ""}`}
+                      >
+                        <td className="py-3 px-2 min-w-64">
+                          <button
+                            onClick={() => setSelectedId(user.id)}
+                            className="text-right flex items-center gap-3 min-w-0 w-full"
+                          >
+                            <AvatarName user={user} />
+                          </button>
+                        </td>
+                        <td className="py-3 px-2">
+                          <RoleBadge role={user.role} />
+                        </td>
+                        <td className="py-3 px-2 text-muted-foreground whitespace-nowrap">
+                          {formatDate(user.last_sign_in_at)}
+                        </td>
+                        <td className="py-3 px-2">
+                          <StatusBadge user={user} />
+                        </td>
+                        <td className="py-3 px-2">
+                          <div className="flex justify-end gap-1">
+                            <button
+                              onClick={() => setSelectedId(user.id)}
+                              className="p-2 rounded-md border border-border hover:border-[var(--gold)]"
+                              title="عرض التفاصيل"
+                              aria-label="عرض التفاصيل"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => copyUserId(user.id)}
+                              className="p-2 rounded-md border border-border hover:border-[var(--gold)]"
+                              title="نسخ المعرّف"
+                              aria-label="نسخ المعرّف"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
 
-        <div className="space-y-4 min-w-0">
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-            <StatCard label="الإجمالي" value={stats.total} icon={UsersRound} />
-            <StatCard label="مسؤولون" value={stats.admin} icon={ShieldCheck} tone="gold" />
-            <StatCard label="فريق العمل" value={stats.staff} icon={UserCircle2} tone="sky" />
-            <StatCard label="عملاء" value={stats.client} icon={Mail} tone="emerald" />
-            <StatCard label="محظورون" value={stats.banned} icon={Ban} tone="rose" />
+        <section className="glass-card min-w-0 p-4">
+          <div className="mb-4 flex items-center gap-2">
+            <Fingerprint className="w-5 h-5 text-[var(--gold)]" />
+            <h2 className="font-bold">تفاصيل المستخدم</h2>
           </div>
 
-          <div className="grid 2xl:grid-cols-[minmax(0,1fr)_430px] gap-4">
-            <section className="glass-card p-4 min-w-0">
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
-                <h2 className="font-bold">كل المستخدمين</h2>
-                <div className="relative w-full md:w-80">
-                  <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    className={`${inputClass} pr-9`}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="بحث بالاسم أو البريد أو المعرّف"
-                  />
-                </div>
+          {detailsError ? (
+            <PageError message={(detailsError as Error).message} />
+          ) : detailsLoading ? (
+            <DetailsSkeleton />
+          ) : !selectedUser ? (
+            <EmptyState
+              icon={UserCircle2}
+              title="اختر مستخدماً"
+              description="ستظهر التفاصيل والتحكم بعد اختيار مستخدم من القائمة."
+            />
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <AvatarName user={selectedUser} large />
+                <StatusBadge user={selectedUser} />
               </div>
 
-              {usersError ? (
-                <PageError message={(usersError as Error).message} />
-              ) : usersLoading ? (
-                <UserListSkeleton />
-              ) : users.length === 0 ? (
-                <EmptyState
-                  icon={UsersRound}
-                  title="لا يوجد مستخدمون"
-                  description="أنشئ أول مستخدم للنظام من النموذج الجانبي."
-                />
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="text-muted-foreground border-b border-border">
-                      <tr>
-                        <th className="py-2 px-2 text-right font-medium">المستخدم</th>
-                        <th className="py-2 px-2 text-right font-medium">الدور</th>
-                        <th className="py-2 px-2 text-right font-medium">آخر دخول</th>
-                        <th className="py-2 px-2 text-right font-medium">الحالة</th>
-                        <th className="py-2 px-2 text-left font-medium">تحكم</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users.map((user) => {
-                        const selected = user.id === selectedId;
-                        return (
-                          <tr
-                            key={user.id}
-                            className={`border-b border-border/70 hover:bg-muted/30 ${selected ? "bg-[var(--gold)]/10" : ""}`}
-                          >
-                            <td className="py-3 px-2 min-w-64">
-                              <button
-                                onClick={() => setSelectedId(user.id)}
-                                className="text-right flex items-center gap-3 min-w-0 w-full"
-                              >
-                                <AvatarName user={user} />
-                              </button>
-                            </td>
-                            <td className="py-3 px-2">
-                              <RoleBadge role={user.role} />
-                            </td>
-                            <td className="py-3 px-2 text-muted-foreground whitespace-nowrap">
-                              {formatDate(user.last_sign_in_at)}
-                            </td>
-                            <td className="py-3 px-2">
-                              <StatusBadge user={user} />
-                            </td>
-                            <td className="py-3 px-2">
-                              <div className="flex justify-end gap-1">
-                                <button
-                                  onClick={() => setSelectedId(user.id)}
-                                  className="p-2 rounded-md border border-border hover:border-[var(--gold)]"
-                                  title="عرض التفاصيل"
-                                  aria-label="عرض التفاصيل"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => copyUserId(user.id)}
-                                  className="p-2 rounded-md border border-border hover:border-[var(--gold)]"
-                                  title="نسخ المعرّف"
-                                  aria-label="نسخ المعرّف"
-                                >
-                                  <Copy className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </section>
+              <Tabs defaultValue="edit" className="w-full">
+                <TabsList className="grid h-auto w-full grid-cols-3">
+                  <TabsTrigger value="edit">تعديل</TabsTrigger>
+                  <TabsTrigger value="activity">بيانات</TabsTrigger>
+                  <TabsTrigger value="metadata">تقني</TabsTrigger>
+                </TabsList>
 
-            <section className="glass-card p-4 min-w-0">
-              <div className="flex items-center gap-2 mb-4">
-                <Fingerprint className="w-5 h-5 text-[var(--gold)]" />
-                <h2 className="font-bold">تفاصيل المستخدم</h2>
-              </div>
-
-              {detailsError ? (
-                <PageError message={(detailsError as Error).message} />
-              ) : detailsLoading ? (
-                <DetailsSkeleton />
-              ) : !selectedUser ? (
-                <EmptyState
-                  icon={UserCircle2}
-                  title="اختر مستخدماً"
-                  description="ستظهر التفاصيل والتحكم بعد اختيار مستخدم من القائمة."
-                />
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <AvatarName user={selectedUser} large />
-                    <StatusBadge user={selectedUser} />
-                  </div>
-
+                <TabsContent value="edit" className="mt-4 space-y-4">
                   <form onSubmit={submitUpdate} className="space-y-3">
                     <Field label="الاسم">
                       <input
@@ -558,8 +542,10 @@ function AdminUsersPage() {
                       حذف
                     </button>
                   </div>
+                </TabsContent>
 
-                  <div className="border-t border-border pt-4 space-y-2">
+                <TabsContent value="activity" className="mt-4 space-y-4">
+                  <div className="space-y-2">
                     <InfoRow label="المعرّف" value={selectedUser.id} mono />
                     <InfoRow label="تاريخ الإنشاء" value={formatDate(selectedUser.created_at)} />
                     <InfoRow label="آخر تحديث" value={formatDate(selectedUser.updated_at)} />
@@ -579,7 +565,7 @@ function AdminUsersPage() {
 
                   <div className="border-t border-border pt-4">
                     <h3 className="text-sm font-bold mb-2">بيانات المستخدم داخل النظام</h3>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                       {Object.entries(details.counts).map(([key, value]) => (
                         <div
                           key={key}
@@ -591,28 +577,95 @@ function AdminUsersPage() {
                       ))}
                     </div>
                   </div>
+                </TabsContent>
 
-                  <div className="border-t border-border pt-4">
-                    <h3 className="text-sm font-bold mb-2">Metadata</h3>
-                    <pre className="max-h-56 overflow-auto rounded-md border border-border bg-black/20 p-3 text-xs leading-relaxed text-muted-foreground ltr:text-left">
-                      {JSON.stringify(
-                        {
-                          app_metadata: selectedUser.app_metadata,
-                          user_metadata: selectedUser.user_metadata,
-                          profile: selectedUser.profile,
-                        },
-                        null,
-                        2,
-                      )}
-                    </pre>
-                  </div>
-                </div>
-              )}
-            </section>
-          </div>
-        </div>
+                <TabsContent value="metadata" className="mt-4">
+                  <pre className="max-h-[420px] overflow-auto rounded-md border border-border bg-black/20 p-3 text-xs leading-relaxed text-muted-foreground ltr:text-left">
+                    {JSON.stringify(
+                      {
+                        app_metadata: selectedUser.app_metadata,
+                        user_metadata: selectedUser.user_metadata,
+                        profile: selectedUser.profile,
+                      },
+                      null,
+                      2,
+                    )}
+                  </pre>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+        </section>
       </div>
     </div>
+  );
+}
+
+function CreateUserForm({
+  createForm,
+  setCreateForm,
+  submitCreate,
+  pending,
+}: {
+  createForm: CreateForm;
+  setCreateForm: React.Dispatch<React.SetStateAction<CreateForm>>;
+  submitCreate: (e: React.FormEvent) => void;
+  pending: boolean;
+}) {
+  return (
+    <form onSubmit={submitCreate} className="space-y-3">
+      <Field label="الاسم">
+        <input
+          className={inputClass}
+          value={createForm.full_name}
+          onChange={(e) => setCreateForm((current) => ({ ...current, full_name: e.target.value }))}
+          placeholder="اسم المستخدم"
+        />
+      </Field>
+      <Field label="البريد الإلكتروني">
+        <input
+          className={inputClass}
+          type="email"
+          value={createForm.email}
+          onChange={(e) => setCreateForm((current) => ({ ...current, email: e.target.value }))}
+          required
+          placeholder="name@example.com"
+        />
+      </Field>
+      <Field label="كلمة المرور">
+        <input
+          className={inputClass}
+          type="password"
+          minLength={6}
+          value={createForm.password}
+          onChange={(e) => setCreateForm((current) => ({ ...current, password: e.target.value }))}
+          required
+          placeholder="6 أحرف على الأقل"
+        />
+      </Field>
+      <Field label="الدور">
+        <RoleSelect
+          value={createForm.role}
+          onChange={(role) => setCreateForm((current) => ({ ...current, role }))}
+        />
+      </Field>
+      <label className="flex items-center gap-2 text-sm text-muted-foreground py-1">
+        <Checkbox
+          checked={createForm.email_confirm}
+          onCheckedChange={(checked) =>
+            setCreateForm((current) => ({ ...current, email_confirm: checked === true }))
+          }
+        />
+        تأكيد البريد تلقائياً
+      </label>
+      <button
+        disabled={pending}
+        className="btn-gold w-full py-2.5 rounded-md font-bold disabled:opacity-60 inline-flex items-center justify-center gap-2"
+      >
+        <UserPlus className="w-4 h-4" />
+        {pending ? "جارٍ الإنشاء..." : "إنشاء حساب"}
+      </button>
+    </form>
   );
 }
 

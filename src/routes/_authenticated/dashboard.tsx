@@ -20,6 +20,8 @@ import { CommandPalette } from "@/components/command-palette";
 import { NotificationBell } from "@/components/notification-center";
 import { EmptyState } from "@/components/empty-state";
 import { PageError } from "@/components/page-feedback";
+import { useAuth } from "@/hooks/use-auth";
+import { useCurrentUserName } from "@/hooks/use-current-profile";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardRoute,
@@ -29,8 +31,11 @@ function DashboardRoute() {
   return <DashboardHome />;
 }
 
-export function DashboardHome() {
+export function DashboardHome({ userName }: { userName?: string | null } = {}) {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const { user } = useAuth();
+  const currentUserName = useCurrentUserName(user);
+  const displayName = (userName || currentUserName).trim();
 
   const {
     data: stats,
@@ -125,7 +130,7 @@ export function DashboardHome() {
     return (
       <div className="p-6 space-y-3 animate-pulse">
         <div className="h-9 w-56 bg-muted rounded" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-24 bg-muted/50 rounded-xl" />
           ))}
@@ -169,17 +174,29 @@ export function DashboardHome() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Welcome */}
       <div>
-        <div className="flex items-start justify-between gap-3">
-          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-2xl md:text-3xl font-bold">
-              أهلاً بك في <span className="gold-text">لوحة التحكم</span>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <motion.div
+            className="min-w-0"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h1 className="text-xl font-bold leading-tight sm:text-2xl lg:text-3xl">
+              {displayName ? (
+                <>
+                  أهلاً بك، <span className="gold-text break-words">{displayName}</span>
+                </>
+              ) : (
+                <>
+                  أهلاً بك في <span className="gold-text">لوحة التحكم</span>
+                </>
+              )}
             </h1>
             <p className="text-muted-foreground text-sm mt-1">نظرة سريعة على نشاط المكتب اليوم</p>
           </motion.div>
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <NotificationBell />
           </div>
         </div>
@@ -187,7 +204,7 @@ export function DashboardHome() {
         {/* Live search trigger */}
         <button
           onClick={() => setPaletteOpen(true)}
-          className="relative mt-4 w-full text-right group"
+          className="relative mt-4 w-full min-w-0 text-right group"
           aria-label="بحث"
         >
           <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -202,7 +219,7 @@ export function DashboardHome() {
       </div>
 
       {/* Stat tiles */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {tiles.map((t, i) => (
           <motion.div
             key={t.label}
@@ -230,7 +247,7 @@ export function DashboardHome() {
       {/* Quick actions */}
       <div>
         <h2 className="text-sm font-bold text-muted-foreground mb-2">إجراءات سريعة</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Link to="/clients" className="quick-action">
             <div className="w-10 h-10 rounded-lg btn-gold grid place-items-center">
               <UserPlus className="w-5 h-5" />
@@ -438,7 +455,7 @@ export function DashboardHome() {
                   return (
                     <div
                       key={p?.id}
-                      className={`flex items-center gap-3 p-3 rounded-xl border ${overdue ? "bg-rose-500/5 border-rose-500/30" : "bg-card/60 border-border"}`}
+                      className={`flex flex-col gap-2 p-3 rounded-xl border sm:flex-row sm:items-center sm:gap-3 ${overdue ? "bg-rose-500/5 border-rose-500/30" : "bg-card/60 border-border"}`}
                     >
                       <AlertCircle
                         className={`w-5 h-5 shrink-0 ${overdue ? "text-rose-300" : "text-amber-300"}`}
@@ -472,7 +489,7 @@ export function DashboardHome() {
                           {p.due_date && `· ${format(new Date(p.due_date), "yyyy/MM/dd")}`}
                         </div>
                       </div>
-                      <div className="text-sm font-bold gold-text shrink-0">
+                      <div className="self-end text-sm font-bold gold-text sm:self-auto sm:shrink-0">
                         {Number(p.amount).toLocaleString()}{" "}
                         <span className="text-[10px] opacity-70">ج.م</span>
                       </div>
@@ -501,9 +518,9 @@ function Section({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className={`glass-card p-4 ${tone === "rose" ? "border-rose-500/30" : ""}`}>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-bold flex items-center gap-2">
+    <div className={`glass-card p-3 sm:p-4 ${tone === "rose" ? "border-rose-500/30" : ""}`}>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="min-w-0 text-base font-bold flex items-center gap-2">
           {icon}
           {title}
         </h2>

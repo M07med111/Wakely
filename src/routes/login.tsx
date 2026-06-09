@@ -111,7 +111,7 @@ function LoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="glass-card w-full max-w-md mx-auto p-8 lg:p-10"
+          className="glass-card w-full max-w-md mx-auto p-5 sm:p-8 lg:p-10"
         >
           <div className="flex flex-col items-center text-center lg:hidden">
             <div className="grid place-items-center w-14 h-14 rounded-xl btn-gold">

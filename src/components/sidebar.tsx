@@ -68,9 +68,11 @@ export function BrandHeader({ compact = false }: { compact?: boolean }) {
 
 export function Sidebar({
   userEmail,
+  userName,
   mode = "app",
 }: {
   userEmail?: string | null;
+  userName?: string | null;
   mode?: "app" | "admin";
 }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -109,11 +111,11 @@ export function Sidebar({
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden h-screen shrink-0 overflow-hidden bg-sidebar p-4 md:sticky md:top-0 md:flex md:w-64 md:flex-col md:border-l md:border-border">
+      <aside className="hidden h-dvh shrink-0 overflow-hidden bg-sidebar p-4 lg:sticky lg:top-0 lg:flex lg:w-64 lg:flex-col lg:border-l lg:border-border">
         <BrandHeader />
         <div className="mt-6">{NavList}</div>
         <div className="mt-auto pt-4 border-t border-border">
-          <div className="text-xs text-muted-foreground px-2 truncate">{userEmail}</div>
+          <UserIdentity userName={userName} userEmail={userEmail} />
           <button onClick={logout} className="nav-link w-full mt-2 text-right">
             <LogOut className="w-4 h-4" />
             <span className="text-sm">تسجيل الخروج</span>
@@ -123,7 +125,7 @@ export function Sidebar({
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
+        <div className="lg:hidden fixed inset-0 z-50 flex">
           <button
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
@@ -138,7 +140,7 @@ export function Sidebar({
             </div>
             <div className="mt-6">{NavList}</div>
             <div className="mt-auto pt-4 border-t border-border">
-              <div className="text-xs text-muted-foreground px-2 truncate">{userEmail}</div>
+              <UserIdentity userName={userName} userEmail={userEmail} />
               <button onClick={logout} className="nav-link w-full mt-2 text-right">
                 <LogOut className="w-4 h-4" />
                 <span className="text-sm">تسجيل الخروج</span>
@@ -149,7 +151,7 @@ export function Sidebar({
       )}
 
       {/* Mobile top header */}
-      <header className="md:hidden sticky top-0 z-30 bg-[oklch(0.16_0.01_70/85%)] backdrop-blur-md border-b border-border px-3 py-2.5 flex items-center gap-2">
+      <header className="lg:hidden sticky top-0 z-30 w-full bg-[oklch(0.16_0.01_70/85%)] backdrop-blur-md border-b border-border px-3 py-2.5 flex items-center gap-2">
         <button
           onClick={() => setMobileOpen(true)}
           className="p-2 rounded-md hover:bg-card"
@@ -164,7 +166,7 @@ export function Sidebar({
       </header>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[oklch(0.14_0.01_70/95%)] backdrop-blur-xl border-t border-border safe-bottom">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[oklch(0.14_0.01_70/95%)] backdrop-blur-xl border-t border-border safe-bottom">
         <div className="flex items-stretch px-1">
           {bottomNavItems.map((it) => {
             const active = path === it.to || path.startsWith(it.to + "/");
@@ -183,6 +185,26 @@ export function Sidebar({
   );
 }
 
+function UserIdentity({
+  userName,
+  userEmail,
+}: {
+  userName?: string | null;
+  userEmail?: string | null;
+}) {
+  const primary = userName?.trim() || userEmail || "مستخدم";
+  const showEmail = !!userEmail && userEmail !== primary;
+
+  return (
+    <div className="min-w-0 px-2">
+      <div className="truncate text-sm font-semibold text-sidebar-foreground">{primary}</div>
+      {showEmail && (
+        <div className="mt-0.5 truncate text-[11px] text-muted-foreground">{userEmail}</div>
+      )}
+    </div>
+  );
+}
+
 export function TopBar({ children }: { children?: React.ReactNode }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
 
@@ -198,10 +220,10 @@ export function TopBar({ children }: { children?: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 mb-6">
+    <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center">
       <button
         onClick={() => setPaletteOpen(true)}
-        className="relative flex-1 text-right group"
+        className="relative w-full min-w-0 flex-1 text-right group"
         aria-label="بحث سريع"
       >
         <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -212,8 +234,10 @@ export function TopBar({ children }: { children?: React.ReactNode }) {
           </kbd>
         </div>
       </button>
-      <NotificationBell />
-      {children}
+      <div className="flex w-full shrink-0 items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:pb-0 [&>*]:shrink-0">
+        <NotificationBell />
+        {children}
+      </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   );
