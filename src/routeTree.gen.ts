@@ -22,6 +22,7 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedClientsArchivedRouteImport } from './routes/_authenticated/clients.archived'
 import { Route as AuthenticatedClientsIdRouteImport } from './routes/_authenticated/clients.$id'
 import { Route as AuthenticatedCasesIdRouteImport } from './routes/_authenticated/cases.$id'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -88,6 +89,11 @@ const AuthenticatedCasesIdRoute = AuthenticatedCasesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCasesRoute,
 } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/sessions': typeof AuthenticatedSessionsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/cases/$id': typeof AuthenticatedCasesIdRoute
   '/clients/$id': typeof AuthenticatedClientsIdRoute
   '/clients/archived': typeof AuthenticatedClientsArchivedRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/sessions': typeof AuthenticatedSessionsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/cases/$id': typeof AuthenticatedCasesIdRoute
   '/clients/$id': typeof AuthenticatedClientsIdRoute
   '/clients/archived': typeof AuthenticatedClientsArchivedRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/sessions': typeof AuthenticatedSessionsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/cases/$id': typeof AuthenticatedCasesIdRoute
   '/_authenticated/clients/$id': typeof AuthenticatedClientsIdRoute
   '/_authenticated/clients/archived': typeof AuthenticatedClientsArchivedRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/payments'
     | '/sessions'
+    | '/admin/users'
     | '/cases/$id'
     | '/clients/$id'
     | '/clients/archived'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/payments'
     | '/sessions'
+    | '/admin/users'
     | '/cases/$id'
     | '/clients/$id'
     | '/clients/archived'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/payments'
     | '/_authenticated/sessions'
+    | '/_authenticated/admin/users'
     | '/_authenticated/cases/$id'
     | '/_authenticated/clients/$id'
     | '/_authenticated/clients/archived'
@@ -278,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCasesIdRouteImport
       parentRoute: typeof AuthenticatedCasesRoute
     }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -313,6 +332,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedSessionsRoute: typeof AuthenticatedSessionsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -323,6 +343,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedSessionsRoute: AuthenticatedSessionsRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

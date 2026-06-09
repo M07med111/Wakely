@@ -9,3 +9,6 @@ enable_confirmations = false
 
 [functions.ai-chat]
 verify_jwt = true
+
+[functions.user-admin]
+verify_jwt = true

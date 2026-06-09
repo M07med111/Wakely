@@ -49,15 +49,34 @@ npm run check
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `ADMIN_EMAILS`
 - `AI_API_KEY`
 - `AI_API_BASE_URL`
 - `AI_MODEL`
 - `ALLOWED_ORIGINS`
+- `VITE_ADMIN_EMAILS`
+
+## إدارة المستخدمين
+
+صفحة إدارة المستخدمين متاحة على `/admin/users` لحسابات الأدمن فقط. لو عايز إيميل محدد يدخل
+مباشرة على لوحة إدارة المستخدمين بعد تسجيل الدخول، ضعه في متغيري البيئة التاليين بنفس القيمة:
+
+```env
+ADMIN_EMAILS=owner@example.com
+VITE_ADMIN_EMAILS=owner@example.com
+```
+
+يمكن وضع أكثر من بريد بفواصل:
+
+```env
+ADMIN_EMAILS=owner@example.com,admin@example.com
+VITE_ADMIN_EMAILS=owner@example.com,admin@example.com
+```
 
 `ALLOWED_ORIGINS` قائمة origins مفصولة بفواصل لاستخدام CORS في Edge Function:
 
 ```env
-ALLOWED_ORIGINS=https://your-domain.com,http://localhost:8080,http://127.0.0.1:8080
+ALLOWED_ORIGINS=https://your-domain.com,http://localhost:5173,http://127.0.0.1:5173
 ```
 
 ## حدود الملفات
@@ -72,6 +91,6 @@ ALLOWED_ORIGINS=https://your-domain.com,http://localhost:8080,http://127.0.0.1:8
 
 - لا ترفع `.env` إلى git؛ الملف متجاهل ومزال من التتبع.
 - اعتمد `package-lock.json` مع npm لتثبيت قابل للتكرار.
-- اضبط `ALLOWED_ORIGINS` على دومينات الإنتاج قبل نشر `supabase/functions/ai-chat`.
+- اضبط `ALLOWED_ORIGINS` على دومينات الإنتاج قبل نشر دوال Supabase.
 - شغل `npm run check` قبل النشر.
 - حزم Excel وOCR والمساعد الذكي يتم تحميلها عند الحاجة لتقليل حجم التحميل الأولي.

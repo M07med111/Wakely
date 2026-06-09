@@ -4,6 +4,7 @@ import { Scale, Shield, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { isConfiguredAdminEmail } from "@/lib/admin-access";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -19,10 +20,22 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      const signedInUser = data.user;
+      let shouldOpenAdminUsers =
+        isConfiguredAdminEmail(signedInUser?.email) || signedInUser?.app_metadata?.role === "admin";
+
+      if (!shouldOpenAdminUsers && signedInUser?.id) {
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", signedInUser.id);
+        shouldOpenAdminUsers = (roles ?? []).some((role) => role.role === "admin");
+      }
+
       toast.success("مرحباً بعودتك");
-      navigate({ to: "/" });
+      navigate({ to: shouldOpenAdminUsers ? "/admin/users" : "/" });
     } catch (err: any) {
       toast.error(err.message ?? "حدث خطأ");
     } finally {
@@ -107,9 +120,7 @@ function LoginPage() {
             <p className="text-[11px] text-muted-foreground">للمحاماة والاستشارات القانونية</p>
           </div>
 
-          <h2 className="text-xl font-bold text-center lg:text-right mt-4 lg:mt-0">
-            أهلاً بعودتك
-          </h2>
+          <h2 className="text-xl font-bold text-center lg:text-right mt-4 lg:mt-0">أهلاً بعودتك</h2>
           <p className="text-sm text-muted-foreground text-center lg:text-right mt-1">
             سجّل الدخول بالبيانات التي حصلت عليها للوصول إلى لوحة التحكم
           </p>

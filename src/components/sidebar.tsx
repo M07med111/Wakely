@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Database,
+  UserCog,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
@@ -28,7 +29,10 @@ const items = [
   { to: "/analytics", label: "التحليلات", icon: BarChart3 },
 ];
 
-const adminItems = [{ to: "/backups", label: "النسخ الاحتياطي", icon: Database }];
+const adminItems = [
+  { to: "/admin/users", label: "المستخدمون", icon: UserCog },
+  { to: "/backups", label: "النسخ الاحتياطي", icon: Database },
+];
 
 // Mobile bottom nav: pick 5 most-used
 const mobileItems = items.slice(0, 5);
