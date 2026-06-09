@@ -13,7 +13,7 @@
 ## التشغيل المحلي
 
 1. انسخ `.env.example` إلى `.env`.
-2. املأ مفاتيح Supabase وLovable AI Gateway.
+2. املأ مفاتيح Supabase ومزود الذكاء الاصطناعي المتوافق مع Chat Completions.
 3. ثبت الحزم:
 
 ```bash
@@ -49,7 +49,9 @@ npm run check
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `LOVABLE_API_KEY`
+- `AI_API_KEY`
+- `AI_API_BASE_URL`
+- `AI_MODEL`
 - `ALLOWED_ORIGINS`
 
 `ALLOWED_ORIGINS` قائمة origins مفصولة بفواصل لاستخدام CORS في Edge Function:
