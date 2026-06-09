@@ -21,7 +21,7 @@ function Landing() {
           </div>
           <div className="min-w-0">
             <div className="font-display gold-text font-bold text-sm md:text-base leading-tight truncate">
-              المستشار محسن عياده
+              منصة المكتب القانوني
             </div>
             <div className="text-[10px] text-muted-foreground truncate">
               للمحاماة والاستشارات القانونية
@@ -42,7 +42,7 @@ function Landing() {
         </span>
         <h1 className="mt-6 text-3xl md:text-6xl font-bold leading-tight">
           نظام إدارة <span className="gold-text">القضايا والمكاتب القانونية</span>
-          <br className="hidden md:block" /> للمستشار محسن عياده
+          <br className="hidden md:block" /> للمحامين والمكاتب القانونية
         </h1>
         <p className="mt-5 max-w-2xl mx-auto text-base md:text-lg text-muted-foreground px-2">
           منصّة متكاملة وأنيقة لإدارة الموكلين، القضايا، الجلسات، المستندات والمدفوعات — مصمّمة

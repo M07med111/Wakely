@@ -66,24 +66,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#1a1611" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "محسن عياده" },
-      { title: "المستشار محسن عياده — إدارة المكتب القانوني" },
+      { name: "apple-mobile-web-app-title", content: "المكتب القانوني" },
+      { title: "منصة المكتب القانوني — إدارة القضايا" },
       {
         name: "description",
         content:
-          "نظام إدارة القضايا والمكاتب القانونية للمستشار محسن عياده — متابعة الموكلين، القضايا، الجلسات والمدفوعات.",
+          "نظام إدارة القضايا والمكاتب القانونية — متابعة الموكلين، القضايا، الجلسات والمدفوعات.",
       },
-      { property: "og:title", content: "المستشار محسن عياده — إدارة المكتب القانوني" },
-      { name: "twitter:title", content: "المستشار محسن عياده — إدارة المكتب القانوني" },
+      { property: "og:title", content: "منصة المكتب القانوني — إدارة القضايا" },
+      { name: "twitter:title", content: "منصة المكتب القانوني — إدارة القضايا" },
       {
         property: "og:description",
         content:
-          "نظام إدارة القضايا والمكاتب القانونية للمستشار محسن عياده — متابعة الموكلين، القضايا، الجلسات والمدفوعات.",
+          "نظام إدارة القضايا والمكاتب القانونية — متابعة الموكلين، القضايا، الجلسات والمدفوعات.",
       },
       {
         name: "twitter:description",
         content:
-          "نظام إدارة القضايا والمكاتب القانونية للمستشار محسن عياده — متابعة الموكلين، القضايا، الجلسات والمدفوعات.",
+          "نظام إدارة القضايا والمكاتب القانونية — متابعة الموكلين، القضايا، الجلسات والمدفوعات.",
       },
       {
         property: "og:image",

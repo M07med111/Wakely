@@ -76,7 +76,7 @@ function SessionsPage() {
           <div>
             <h2 className="font-bold text-lg">تقرير الجلسات المستقبلية</h2>
             <p className="text-xs text-muted-foreground">
-              المستشار محسن عياده للمحاماة والاستشارات القانونية
+              منصة المكتب القانوني للمحاماة والاستشارات القانونية
             </p>
           </div>
           <div className="flex gap-2 print:hidden">

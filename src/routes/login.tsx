@@ -85,7 +85,7 @@ function LoginPage() {
             </div>
             <div>
               <h1 className="font-display text-3xl gold-text font-bold leading-tight">
-                المستشار محسن عياده
+                منصة المكتب القانوني
               </h1>
               <p className="text-xs text-muted-foreground mt-1">للمحاماة والاستشارات القانونية</p>
             </div>
@@ -123,7 +123,7 @@ function LoginPage() {
             <div className="grid place-items-center w-14 h-14 rounded-xl btn-gold">
               <Scale className="w-7 h-7" />
             </div>
-            <h1 className="mt-4 text-xl font-bold gold-text leading-tight">المستشار محسن عياده</h1>
+            <h1 className="mt-4 text-xl font-bold gold-text leading-tight">منصة المكتب القانوني</h1>
             <p className="text-[11px] text-muted-foreground">للمحاماة والاستشارات القانونية</p>
           </div>
 

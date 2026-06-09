@@ -48,7 +48,7 @@ export function BrandHeader({ compact = false }: { compact?: boolean }) {
       <BrandMark />
       <div className="min-w-0">
         <div className="font-display gold-text font-bold text-base leading-tight truncate">
-          المستشار محسن عياده
+          منصة المكتب القانوني
         </div>
         {!compact && (
           <div className="text-[10px] text-muted-foreground mt-0.5 truncate">

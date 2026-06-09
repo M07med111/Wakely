@@ -167,7 +167,7 @@ function Dashboard() {
         <div className="flex items-start justify-between gap-3">
           <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-2xl md:text-3xl font-bold">
-              أهلاً، <span className="gold-text">المستشار محسن</span>
+              أهلاً بك في <span className="gold-text">لوحة التحكم</span>
             </h1>
             <p className="text-muted-foreground text-sm mt-1">نظرة سريعة على نشاط المكتب اليوم</p>
           </motion.div>
